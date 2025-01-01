@@ -1,0 +1,6 @@
+/* Styles for NavBar */
+nav{
+    height: 50px;
+    width: 100%;
+    border-bottom: 2px solid var(--accent-colour);
+}
