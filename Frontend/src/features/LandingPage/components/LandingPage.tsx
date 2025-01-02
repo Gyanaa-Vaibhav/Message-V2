@@ -1,31 +1,45 @@
 import '../styles/LandingPage.css';
-import {shh,Shield,Message,Mobile,Lock,FeatureCard,motion} from "../imports/LandingPageimports.ts";
+import {shh,Shield,Message,Delete,Mobile,Lock,AI,FeatureCard,FAQ,motion} from "../imports/LandingPageimports.ts";
+
+export type FAQType = {
+    title:string,
+    Desc:string
+}
 
 const LandingPage = () => {
-    console.log("From Landing Page")
+    const FAQs:FAQType[] = [
+        {title:'Is it safe?',Desc:"Yes, It is a 100% safe if you are still skeptical the code is open source you can check it out there"},
+        {title:'Are the Chats Stored?',Desc:"Yes and No, The room chats are saved normally while individual chats are encrypted and stored"},
+        {title:'How many Devices I can access',Desc:"As of now we support 2 devices Simultaneously"},
+        {title:'Is the AI free?',Desc:"As of now yes the AI is Free."},
+        // TODO ADD GITHUB LOCATION URL
+        {title:'Where is the code located at?',Desc:`You can find the source code <a>here</a>`}
+    ]
+
+    const faq = FAQs.map(i=><FAQ key={i.title} title={i.title}  Desc={i.Desc}/>)
 
     return (
         <>
             <div className='landing-page'>
                 <motion.div
                     initial={
-                    {
-                        x:'-100vh',
-                        opacity: 0.2,
-                    }}
+                        {
+                            scale:0,
+                            opacity:0,
+                        }}
                     animate={
-                    {
-                        x:0,
-                        opacity: 1,
-                        transition: { duration: 0.5 },
-                    }}
+                        {
+                            scale:1,
+                            opacity:1,
+                            transition: {duration: 0.5},
+                        }}
                     className='landing-text'
                 >
                     <h1>Message INC</h1>
                     <div className='landing-info'>
-                        <h2>An Anonymous and Fully
+                        <h2>An AI Enabled Anonymous and
                             <br/>
-                            Private way to chat
+                            Fully Private way to chat
                         </h2>
                         <div className='landing-cta'>
                             <button>Try Chat Rooms Now</button>
@@ -36,24 +50,26 @@ const LandingPage = () => {
                 <hr/>
                 <motion.div
                     initial={
-                    {
-                        scale: 0,opacity:0
-                    }}
+                        {
+                            scale: 0, opacity: 0
+                        }}
                     animate={
-                    {
-                        scale: 1,
-                        opacity:1,
-                        transition: { duration: 0.5 }
-                    }}
+                        {
+                            scale: 1,
+                            opacity: 1,
+                            transition: {duration: 0.5}
+                        }}
                     className='landing-image-container'
                 >
                     <img src={shh} alt="A women with a finger placed on her lips"/>
                     <div className="gradient-overlay"></div>
                 </motion.div>
             </div>
+
             <div className='features'>
                 <FeatureCard
                     svg={Shield}
+                    alt={'Shield Icon'}
                     description={`Chat without 
                         signing up or sharing 
                         personal information.`
@@ -62,6 +78,7 @@ const LandingPage = () => {
                 />
                 <FeatureCard
                     svg={Lock}
+                    alt={'Lock Icon'}
                     title={'Secure and Private'}
                     description={`
                         With End to End Encryption Nothing is being tracked
@@ -70,6 +87,7 @@ const LandingPage = () => {
                 />
                 <FeatureCard
                     svg={Message}
+                    alt={'Message Icon'}
                     title={'Diverse Chat Rooms'}
                     description={`
                         Find rooms based on your
@@ -78,15 +96,38 @@ const LandingPage = () => {
                 />
                 <FeatureCard
                     svg={Mobile}
+                    alt={'Mobile Icon'}
                     title={'Accessible Anywhere'}
                     description={`
                         Use on mobile or desktop, anytime,
                         anywhere.`
                     }
                 />
+                <FeatureCard
+                    svg={AI}
+                    alt={'AI Icon'}
+                    title={'Access To AI'}
+                    description={`
+                        Use Our ChatGPT enabled model to summarise 
+                        long massages in the go.`
+                    }
+                />
+                <FeatureCard
+                    svg={Delete}
+                    alt={'Delete Icon'}
+                    title={'Delete All in Single click'}
+                    description={`
+                        With your privacy in mind you can not only 
+                        delete you account but the chats with others as well`
+                    }
+                />
+            </div>
+
+            <div className='FAQ'>
+                {faq}
             </div>
         </>
     );
 }
 
-export default LandingPage;
+            export default LandingPage;

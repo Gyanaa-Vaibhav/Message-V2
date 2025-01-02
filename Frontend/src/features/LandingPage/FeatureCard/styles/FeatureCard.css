@@ -6,13 +6,14 @@
     text-align: center;
     align-items: center;
     flex-direction: column;
-    padding: 25px 20px 50px;
+    padding: 25px 20px;
     background-color: var(--background-secondary);
     font-family: var(--secondary-font),sans-serif;
 }
 
-.feature-card:nth-last-child(1){
-    grid-column: 2/3;
+#AI,#Delete{
+    height: 35px;
+    width: 35px;
 }
 
 .svg{
@@ -20,10 +21,38 @@
     height: 40px;
 }
 
-.feature-card h3{
+.feature-card h2{
     margin: 20px 0;
+    font-weight: 500;
+    letter-spacing: 1px;
+    font-family: var(--primary-font), serif;
 }
 
 .feature-card p{
     color: var(--accent-colour);
+}
+
+@media screen and (max-width: 1200px) {
+    .feature-card h2{
+        font-size: 1.4rem;
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .feature-card{
+        padding: 15px 20px 25px;
+    }
+}
+
+@media screen and (max-width: 850px) {
+    .svg img{
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .feature-card h2{
+        font-size: 1.125rem;
+    }
 }

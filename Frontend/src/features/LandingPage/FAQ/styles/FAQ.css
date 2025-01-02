@@ -1,0 +1,79 @@
+/* Styles for FAQ */
+.FAQ-title-container{
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    margin: 0 100px;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    background-color: var(--background-secondary);
+    font-family: var(--secondary-font), serif;
+}
+
+#arrow{
+    width: 35px;
+    height: 35px;
+    transition: all 250ms;
+}
+
+.FAQ-title{
+    width: 100%;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--primary-font), serif;
+}
+
+.rotate{
+    transform: rotate(90deg);
+}
+
+.FAQ-title h4{
+    font-size: 1.4rem;
+}
+
+.FAQ-Desc{
+    padding: 1rem 0;
+    font-weight: 600;
+    align-self: baseline;
+    color: var(--accent-colour);
+}
+
+.FAQ-Desc p a{
+    cursor: pointer;
+    color: var(--secondary-colour);
+}
+
+@media screen and (max-width: 1200px) {
+    .FAQ-title-container{
+        margin: 0 80px;
+    }
+
+    .FAQ-title h4{
+        font-size: 1.4rem;
+    }
+
+}
+
+@media screen and (max-width: 960px) {
+    .FAQ-title-container{
+        margin: 0 60px;
+    }
+}
+
+@media screen and (max-width: 850px) {
+    .FAQ-title-container{
+        margin: 0 40px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .FAQ-title-container{
+        margin: 0 20px;
+    }
+
+    .FAQ-title h4{
+        font-size: 1.125rem;
+    }
+}

@@ -16,7 +16,7 @@
     --accent-colour : #8696A0;
 
     --secondary-colour: #25D366;
-    --secondary-colour-hover: #30E076;
+    --secondary-colour-hover: #80ffae;
 
     --background-primary : #1F2C35;
     --background-primary-hover: #273641;
@@ -35,7 +35,6 @@ h1{
 body{
     background-color: var(--background-primary);
 }
-
 
 body,p,h1,h2,h3,h4,h5,h6{
     margin: 0;

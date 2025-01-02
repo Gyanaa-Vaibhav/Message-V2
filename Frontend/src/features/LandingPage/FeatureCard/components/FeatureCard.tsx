@@ -1,16 +1,22 @@
 import '../styles/FeatureCard.css';
 import {Props} from "../types/FeatureCardtypes.ts";
+import {motion} from "framer-motion";
 
-const FeatureCard = ({svg,title,description}:Props) => {
+const FeatureCard = ({svg,title,description,alt}:Props) => {
     return (
         <>
-            <div className='feature-card'>
+            <motion.div
+                initial={{opacity:0,y:100}}
+                whileInView={{opacity:1,y:0}}
+                viewport={{once:true}}
+                className='feature-card'
+            >
                 <div className='svg'>
-                    <img src={svg} alt={svg.split('.')[0]}/>
+                    <img id={alt.split(' ')[0]} src={svg} alt={alt}/>
                 </div>
-                <h3>{title}</h3>
+                <h2>{title}</h2>
                 <p>{description}</p>
-            </div>
+            </motion.div>
         </>
     );
 }
