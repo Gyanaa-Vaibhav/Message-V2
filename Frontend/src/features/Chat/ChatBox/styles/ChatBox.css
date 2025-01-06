@@ -1,0 +1,57 @@
+/* Styles for ChatBox */
+.chat-box{
+    color: white;
+    display: flex;
+    grid-column: 3/-1;
+    min-height: 100vh;
+    position: relative;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: linear-gradient(to bottom, #1f2c3470, #121b2270);
+}
+
+.chat-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.input-container{
+    bottom: 0;
+}
+
+.message-container{
+    gap: 0.7rem;
+    display: flex;
+    align-items: center;
+}
+
+.message-container input{
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid #3c454a;
+    background-color: #3c454a;
+}
+
+.message-container input:focus{
+    border: 1px solid #25D366;
+}
+
+.message-container img{
+    width: 30px;
+    height: 30px;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 25px;
+    background: #2A3A45;
+    transition: all 100ms;
+}
+.message-container img:hover{
+    scale: 1.05;
+}
+
+.message{
+    margin: 5px 0;
+    font-size: 1.25rem;
+}

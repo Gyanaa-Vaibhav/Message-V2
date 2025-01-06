@@ -1,31 +1,63 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt';
 import {Request,Response,NextFunction} from "express";
+interface DecodedJWT {
+    user: string,
+    userId: number,
+    iat: number,
+    exp: number
+}
 
-function sign(req:Request,res:Response,next:NextFunction){
-    const token = jwt.sign({user:'testName',userId:1},'Hello',{ expiresIn: '30min' })
+function sign(req:Request, res:Response, next:NextFunction){
+    const token = jwt.sign({user:'bob',userId:1},'Hello',{ expiresIn: '12hr' })
     let toSend = ''
-    // async function hashPass(){
-    //     const pass = await bcrypt.hash('test',10)
-    //     // console.log("Hashed",pass)
-    //     toSend += pass
-    // }
-    // hashPass().then(()=>req.body.pass = toSend)
-
     req.body.token = token
     setTimeout(()=>{
         next()
     },100)
 }
 
-
 function decode(req:Request,res:Response,next:NextFunction){
     const token = req.body.token
-    console.log('Token',token)
     const verified = jwt.verify(token,'Hello')
-    const decode = jwt.decode(token)
-    console.log("Decoded",decode)
+    const decode = jwt.decode(token) as DecodedJWT
+    if(!decode) return
+    console.log(decode)
+    req.body.user = decode.user
     next()
 }
 
-export {sign,decode}
+function verifyToken(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+         res.status(401).json({
+            success: false,
+            error: 'Authorization token missing or malformed',
+        });
+        return
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, 'Hello') as DecodedJWT;
+        req.body.user = decoded;
+        next();
+    } catch (err: any) {
+        if (err.name === 'TokenExpiredError') {
+            res.status(401).json({
+                success: false,
+                error: 'Token has expired',
+            });
+            return
+        }
+        res.status(401).json({
+            success: false,
+            error: 'Invalid token',
+        });
+        return;
+    }
+}
+
+export {sign,decode,verifyToken}

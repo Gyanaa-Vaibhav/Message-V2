@@ -1,25 +1,14 @@
 import cloud from '/svg/cloud_icon.svg?url'
-import '../styles/UploadFile.css'
+import '../styles/UploadHandler.css'
 import React from "react";
 import {Socket} from "socket.io-client";
-
-export default function UploadFile(){
-    return(
-        <>
-            <div className='dragging'>
-                <h1>Upload your files here</h1>
-                <img className='cloud' src={cloud} alt=""/>
-            </div>
-        </>
-    )
-}
 
 type Props = {
     children: React.ReactNode
     socket:Socket | null
 };
 
-export function UploadHandler({children,socket}:Props){
+export default function UploadHandler({children,socket}:Props){
     const [isDragging, setIsDragging] = React.useState(false);
 
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {

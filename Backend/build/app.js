@@ -10,7 +10,8 @@ import * as http from "node:http";
 import webSocket from "./shared/utils/webSocket.js";
 import loginRouter from "./features/Login/routes/LoginRoute.js";
 import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
-import { decode, sign } from "./shared/utils/jwt.js";
+import { sign, verifyToken } from "./shared/utils/jwt.js";
+import { getChatMessages, getChats } from "./shared/DataBase/query.js";
 dotenv.config();
 const app = express();
 const PORT = Number(process.env.SERVER_PORT) || 9999;
@@ -52,30 +53,23 @@ app.get('/test', (req, res) => {
     res.json({ success: true, message: 'Hello Hi Serve Works' });
 });
 app.use(sign);
-app.use(decode);
-app.get('/users', (req, res) => {
-    const users = [{ name: 'a', image: '2' }, { name: 'b', image: '2' }, { name: 'c', image: '2' }, { name: 'd', image: '2' }];
-    res.json({ success: true, users });
+// app.use(decode)
+app.use(verifyToken);
+app.get('/me', (req, res) => {
+    const user = req.body.user;
+    console.log(user);
+    res.json({ success: true, user });
 });
-app.get('/message/:user', (req, res) => {
+app.get('/users', async (req, res) => {
+    const user = req.body.user || 'alice';
+    const chats = await getChats(user.user);
+    res.json({ success: true, users: chats });
+});
+app.get('/message/:user', async (req, res) => {
     const userName = req.params.user;
-    const messages = [
-        { user: 'a', time: 'time', message: 'Hello from a' },
-        { user: 'a', time: 'time', message: 'Hello from a2' },
-        { user: 'b', time: 'time', message: 'Hello from b' },
-        { user: 'b', time: 'time', message: 'Hello from b2' },
-        { user: 'c', time: 'time', message: 'Hello from c' },
-        { user: 'c', time: 'time', message: 'Hello from c2' },
-        { user: 'd', time: 'time', message: 'Hello from d' },
-        { user: 'd', time: 'time', message: 'Hello from d2' },
-    ];
-    const msgData = [];
-    const sendingMessage = messages.map(m => {
-        if (m.user == userName) {
-            msgData.push(m);
-        }
-    });
-    res.json({ success: true, msgData });
+    const activeUser = req.body.user.user;
+    const message = await getChatMessages(activeUser, userName);
+    res.json({ success: true, message });
 });
 // Socket Consumer
 webSocket(io);

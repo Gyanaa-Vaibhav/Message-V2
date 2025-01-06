@@ -2,7 +2,7 @@ import '../styles/FAQ.css';
 import Arrow from "/svg/Right_icon.svg?url";
 import {FAQType} from "../../components/LandingPage.tsx";
 import {useState} from "react";
-import {motion} from "../../imports/LandingPageimports.ts";
+import {motion} from "framer-motion";
 
 const FAQ = ({title,Desc}:FAQType) => {
     const [showDesc,setShowDesc] = useState<boolean>(false)
