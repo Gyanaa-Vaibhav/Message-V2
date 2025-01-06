@@ -1,4 +1,6 @@
 // Controller for Register
-export const renderRegister = (req, res) => {
+import { Request, Response } from 'express';
+
+export const renderRegister = (req:Request, res:Response) => {
     res.send('Render Register page here');
 };

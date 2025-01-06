@@ -1,5 +1,5 @@
 import express from 'express';
-import { renderRegister } from '../controllers/RegisterController.ts';
+import { renderRegister } from '../controllers/RegisterController.js';
 
 const RegisterRouter = express.Router();
 

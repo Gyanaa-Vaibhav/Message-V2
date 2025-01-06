@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import RegisterRoute from '../routes/RegisterRoute.ts';
+import RegisterRoute from '../routes/RegisterRoute';
 
 const app = express();
 app.use('/Register', RegisterRoute);
