@@ -13,11 +13,14 @@ export default function webSocket(io: SocketIOServer): void {
         });
 
         socket.on('message', async ({message,to}) => {
-            console.log('Received message:', message);
-            console.log(to)
-            // io.emit('sendMessage', {message,to});
             const from = Object.keys(userMap).find((key) => userMap[key] === socket.id);
-            console.log(`Message from ${from} to ${to}: ${message}`);
+            console.log(userMap)
+            console.log('Message event received:', { from, to, message });
+
+            if (!from) {
+                console.error('Sender not found in userMap');
+                return;
+            }
 
             const recipientSocketId = userMap[to];
             if (recipientSocketId) {
@@ -28,7 +31,11 @@ export default function webSocket(io: SocketIOServer): void {
         });
 
         socket.on('disconnect', () => {
-            console.log(`Client disconnected: ${socket.id}`);
+            console.log(`Disconnected: ${socket.id}`);
+            const userId = Object.keys(userMap).find((key) => userMap[key] === socket.id);
+            if (userId) {
+                delete userMap[userId];
+            }
         });
     });
 }

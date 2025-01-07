@@ -22,7 +22,6 @@ function decode(req:Request,res:Response,next:NextFunction){
     const verified = jwt.verify(token,'Hello')
     const decode = jwt.decode(token) as DecodedJWT
     if(!decode) return
-    console.log(decode)
     req.body.user = decode.user
     next()
 }

@@ -1,4 +1,6 @@
 .chat-screen{
     display: grid;
-    grid-template-columns: repeat(8,1fr);
+    grid-template-columns: 2fr 6fr;
+    height: 100vh;
+    overflow: hidden;
 }

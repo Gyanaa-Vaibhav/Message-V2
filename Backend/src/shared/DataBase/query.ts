@@ -45,21 +45,22 @@ export async function getChats(user:string){
 }
 
 export async function getChatMessages(activeUser:string, chatUser:string){
-    const activeUserID = await getUserId(activeUser)
-    const chatUserID = await getUserId(chatUser)
     const query = `
-        SELECT * 
+        SELECT 
+            message,
+            timestamp as time,
+            recipient_username as recipient,
+            sender_username as sender
         FROM 
             messages m 
         where 
-            (m.sender_id=$1 AND m.recipient_id=$2)
+            (LOWER(m.sender_username)=LOWER($1) AND LOWER(m.recipient_username)=LOWER($2))
         OR
-            (m.sender_id = $2 AND m.recipient_id = $1)
+            (LOWER(m.sender_username)=LOWER($2) AND LOWER(m.recipient_username)=LOWER($1))
         ORDER BY
             m.timestamp ASC;
     `;
-
-    const values =[activeUserID, chatUserID]
+    const values =[activeUser, chatUser]
     const {rows} = await pool.query(query,values);
     return rows || null;
 }

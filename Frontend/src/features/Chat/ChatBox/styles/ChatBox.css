@@ -2,16 +2,21 @@
 .chat-box{
     color: white;
     display: flex;
-    grid-column: 3/-1;
+    grid-column: 2 / 3;
     min-height: 100vh;
     position: relative;
     flex-direction: column;
+    overflow: hidden;
     justify-content: flex-end;
+    flex: 1;
+    overflow-y: auto;
     background: linear-gradient(to bottom, #1f2c3470, #121b2270);
 }
 
 .chat-container{
+    overflow-y: auto;
     display: flex;
+    padding: 0 0.5rem;
     flex-direction: column;
 }
 
@@ -54,4 +59,41 @@
 .message{
     margin: 5px 0;
     font-size: 1.25rem;
+}
+
+.message-bubble{
+    display: flex;
+    width: fit-content;
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.4rem;
+    background-color: #2a3942;
+    flex-direction: column;
+}
+
+.user{
+    color: var(--secondary-colour);
+}
+
+.self{
+    margin-left: auto;
+}
+
+.self .user-message {
+    align-self: flex-end;
+}
+
+
+.user-message{
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    font-family: var(--secondary-font), sans-serif;
+}
+
+
+.message-user-info{
+    display: flex;
+    font-size: 0.875rem;
+    font-family: var(--primary-font), serif;
+    justify-content: space-between;
 }

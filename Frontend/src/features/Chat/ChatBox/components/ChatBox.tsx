@@ -13,14 +13,22 @@ type Props = {
     activeUser: string;
 };
 
-const ChatBox = ({user}:Props) => {
+type Message = {
+    message:string,
+    sender:string,
+    recipient:string,
+    time:string
+}
+
+const ChatBox = ({user,activeUser}:Props) => {
     const [socket,setSocket] = React.useState<Socket | null>(null);
     const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
     const [messages,setMessages] = React.useState<string[]>([]);
 
     const sendMessage = () => {
         if (socket && outGoingMessage) {
-            socket.emit('message', {message:outGoingMessage,to:user});
+            socket.emit('message', { message: outGoingMessage, to: user });
+            setMessages((prev) => [...prev, `You: ${outGoingMessage}`]);
             setOutGoingMessage('');
         }
     };
@@ -39,28 +47,33 @@ const ChatBox = ({user}:Props) => {
             console.log('Connected to WebSocket server');
         })
 
-        server.emit('register', user);
-
         return ()=>{
             server.close()
         }
     },[])
 
     React.useEffect(() => {
-        if(!socket) return
+        if (!socket) return;
 
-        socket.on('sendMessage', ({ message, from }) => {
-            console.log(`Message from ${from}: ${message}`);
+        const handleSendMessage = ({ message, from }:any) => {
+            console.log(`Message received from ${from}: ${message}`);
             if (from === user) {
                 setMessages((prev) => [...prev, message]);
             }
-        });
+        };
 
-        return ()=> {
-            socket.off('sendMessage')
+        socket.on('sendMessage', handleSendMessage);
+
+        return () => {
+            socket.off('sendMessage', handleSendMessage);
+        };
+    }, [socket, user]);
+
+    React.useEffect(() => {
+        if (socket && activeUser) {
+            socket.emit('register', activeUser);
         }
-
-    },[socket,user])
+    }, [socket, activeUser]);
 
     const token = localStorage.getItem('auth')
 
@@ -75,8 +88,24 @@ const ChatBox = ({user}:Props) => {
         })
             .then(res=>res.json())
             .then(data => {
-                console.log("Message Data",data)
-                data.message.map((m:{user:string,time:string,message:string})=>setMessages(prev => [...prev,m.message]))
+                if(!data.success) return
+                const jsxMsg = data.message.map((m:Message)=> {
+                const time = new Date(m.time).toLocaleTimeString()
+                    console.log((m.sender).toLowerCase() === activeUser ? 'self' : '')
+                    setMessages(prev => [...prev, m.message])
+                    return(
+                        <div key={m.message} className={`message ${(m.sender).toLowerCase() === activeUser ? 'self' : ''}`}>
+                            <div className='message-bubble'>
+                                <div className='message-user-info'>
+                                    <p className='user'>{m.sender}</p>
+                                    <p className='time'>{time.slice(0,-3)}</p>
+                                </div>
+                                <p className='user-message'>{m.message}</p>
+                            </div>
+                        </div>
+                    )
+                })
+                setMessages(jsxMsg)
             })
     },[user,token])
 
@@ -85,7 +114,16 @@ const ChatBox = ({user}:Props) => {
             <StarAnimation/>
             <UploadHandler socket={socket}>
                 <div className='chat-container'>
-                    {messages.map((m,i)=><p className='message' key={i}>{m}</p>)}
+                    <>
+                        <div className='message-bubble'>
+                            <div className='message-user-info'>
+                                <p className='user'>User</p>
+                                <p className='time'>12:00</p>
+                            </div>
+                            <p className='message'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A, animi at consequuntur dicta earum eos .</p>
+                        </div>
+                    </>
+                    {messages.map((m)=><>{m}</>)}
                 </div>
                 <div className='input-container'>
                     <div className='message-container'>

@@ -17,12 +17,12 @@ const ChatLayout = ({setUser,selectedUser}:Props) => {
     const [users,setUsers] = React.useState<User[]>([])
 
     const handleUserClick = (user: string) => {
-        setUser(user);
+        setUser(user.toLocaleLowerCase());
     };
 
-    const token = localStorage.getItem('auth')
 
     React.useEffect(()=>{
+        const token = localStorage.getItem('auth')
         setUsers([])
         fetch('http://localhost:5172/users',{
             method:'GET',
@@ -34,7 +34,7 @@ const ChatLayout = ({setUser,selectedUser}:Props) => {
             .then(data => {
                 setUsers(data.users)
             })
-    },[token])
+    },[])
 
     const userChat:JSX.Element[] = users.map(m=> {
         const date = new Date(m.timestamp)
@@ -45,11 +45,8 @@ const ChatLayout = ({setUser,selectedUser}:Props) => {
         return(
             <div
                 key={m.name}
-                onClick={()=> {
-                    setUser(m.name)
-                    handleUserClick(m.name)
-                }}
-                className={`user-chat ${selectedUser === m.name ? 'selected' : ''}`}
+                onClick={()=> handleUserClick(m.name)}
+                className={`user-chat ${selectedUser === m.name.toLocaleLowerCase() ? 'selected' : ''}`}
             >
                 <img src="url" alt="U"/>
                 <div className='user-details'>

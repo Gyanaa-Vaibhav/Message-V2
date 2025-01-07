@@ -4,7 +4,7 @@ import './MainChat.css'
 import React from "react";
 
 export default function MainChat() {
-    const [activeUser, setActiveUser] = React.useState<string>('alice');
+    const [activeUser, setActiveUser] = React.useState<string>('');
     const [selectedUser, setSelectedUser] = React.useState<string>('');
 
     React.useEffect(() => {
@@ -15,10 +15,12 @@ export default function MainChat() {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    setActiveUser(data.user.user);
+                    if (data?.user?.user) {
+                        setActiveUser(data.user.user);
+                    }
                 });
         }
-    }, [setActiveUser]);
+    }, []);
 
     return(
         <>
