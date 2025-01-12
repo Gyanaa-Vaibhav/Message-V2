@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt';
-import {Request,Response,NextFunction} from "express";
+import {NextFunction, Request, Response} from "express";
+
 interface DecodedJWT {
     user: string,
     userId: number,
@@ -9,12 +9,10 @@ interface DecodedJWT {
 }
 
 function sign(req:Request, res:Response, next:NextFunction){
-    const token = jwt.sign({user:'bob',userId:1},'Hello',{ expiresIn: '12hr' })
+    const token = jwt.sign({user:'Bob',userId:2},'Hello',{ expiresIn: '12hr' })
     let toSend = ''
     req.body.token = token
-    setTimeout(()=>{
-        next()
-    },100)
+    next()
 }
 
 function decode(req:Request,res:Response,next:NextFunction){
@@ -40,8 +38,7 @@ function verifyToken(req: Request, res: Response, next: NextFunction) {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, 'Hello') as DecodedJWT;
-        req.body.user = decoded;
+        req.body.user = jwt.verify(token, 'Hello') as DecodedJWT;
         next();
     } catch (err: any) {
         if (err.name === 'TokenExpiredError') {

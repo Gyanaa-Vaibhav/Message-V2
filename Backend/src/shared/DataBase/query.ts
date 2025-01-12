@@ -54,13 +54,53 @@ export async function getChatMessages(activeUser:string, chatUser:string){
         FROM 
             messages m 
         where 
-            (LOWER(m.sender_username)=LOWER($1) AND LOWER(m.recipient_username)=LOWER($2))
+            m.sender_username=$1 AND m.recipient_username=$2
         OR
-            (LOWER(m.sender_username)=LOWER($2) AND LOWER(m.recipient_username)=LOWER($1))
+            m.sender_username=$2 AND m.recipient_username=$1
         ORDER BY
             m.timestamp ASC;
     `;
     const values =[activeUser, chatUser]
     const {rows} = await pool.query(query,values);
     return rows || null;
+}
+
+export async function getChatMessagesByID(activeUser:string, chatUser:string){
+    const query = `
+        SELECT
+            message,
+            timestamp,
+            recipitent_id as "userId",
+            sender_id as "activeUserId"
+        FROM
+            messageing m 
+        where 
+            m.sender_id=$1 AND m.recipitent_id=$2
+        OR
+            m.sender_id=$2 AND m.recipitent_id=$1
+        ORDER BY
+            m.timestamp ASC;
+    `;
+    const values =[activeUser, chatUser]
+    const {rows} = await pool.query(query,values);
+    return rows || null;
+}
+
+type AddMessage = {
+    message:string,
+    userId:number,
+    activeUserId:number,
+    timestamp:string
+}
+
+export async function addToChats({message,userId,activeUserId,timestamp}:AddMessage){
+    const query = `
+        INSERT INTO messageing
+            (message,sender_id,recipitent_id,timestamp) 
+        VALUE 
+            ($1,$2,$3,$4)
+    `;
+    const values = [message,activeUserId,userId,timestamp]
+    console.log("From Data base",values)
+    // await pool.query(query,values);
 }

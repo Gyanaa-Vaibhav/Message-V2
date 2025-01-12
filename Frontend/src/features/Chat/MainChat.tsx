@@ -5,7 +5,9 @@ import React from "react";
 
 export default function MainChat() {
     const [activeUser, setActiveUser] = React.useState<string>('');
+    const [activeUserId, setActiveUserId] = React.useState<number>(NaN);
     const [selectedUser, setSelectedUser] = React.useState<string>('');
+    const [selectedUserId, setSelectedUserId] = React.useState<number>(NaN);
 
     React.useEffect(() => {
         const token = localStorage.getItem('auth');
@@ -16,6 +18,7 @@ export default function MainChat() {
                 .then((res) => res.json())
                 .then((data) => {
                     if (data?.user?.user) {
+                        setActiveUserId(Number(data.user.userId))
                         setActiveUser(data.user.user);
                     }
                 });
@@ -28,10 +31,13 @@ export default function MainChat() {
                 <ChatLayout
                     setUser={setSelectedUser}
                     selectedUser={selectedUser}
+                    setSelectedUserId={setSelectedUserId}
                 />
                 <ChatBox
                     user={selectedUser}
                     activeUser={activeUser}
+                    activeUserId={activeUserId}
+                    userId={selectedUserId}
                 />
             </div>
         </>

@@ -1,11 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import "./StarAnimation.css";
 
-const StarAnimation: React.FC = () => {
+type Props={
+    number?:number
+}
+
+const StarAnimation: React.FC<Props> = ({number}) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const starCount = 100; // Number of stars
+        const starCount = number || 100; // Number of stars
 
         const createStar = () => {
             if (!containerRef.current) return;

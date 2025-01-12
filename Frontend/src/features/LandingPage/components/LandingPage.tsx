@@ -1,5 +1,5 @@
 import '../styles/LandingPage.css';
-import {shh,Shield,Message,Delete,Mobile,Lock,AI,FeatureCard,FAQ,motion} from "../imports/LandingPageimports.ts";
+import {Shield,Message,Delete,Mobile,Lock,AI,FeatureCard,FAQ,motion} from "../imports/LandingPageimports.ts";
 
 export type FAQType = {
     title:string,
@@ -18,7 +18,7 @@ const typingVariants = {
 
 const letterVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0,transition: { repeat: Infinity, duration: 2, ease: "easeInOut" } },
 };
 
 const TypingText = ({text}:TypingTextProps): JSX.Element => (
@@ -37,7 +37,6 @@ const LandingPage = () => {
         {title:'Are the Chats Stored?',Desc:"Yes and No, The room chats are saved normally while individual chats are encrypted and stored"},
         {title:'How many Devices I can access',Desc:"As of now we support 2 devices Simultaneously"},
         {title:'Is the AI free?',Desc:"As of now yes the AI is Free."},
-        // TODO ADD GITHUB LOCATION URL
         {title:'Where is the code base at?',Desc:`You can find the source code 
         <a target="_blank" href="https://github.com/Gyanaa-Vaibhav/Message-V2" rel="noopener">here</a>`}
     ]
@@ -57,7 +56,7 @@ const LandingPage = () => {
                         {
                             scale: 1,
                             opacity: 1,
-                            transition: {duration: 0.5},
+                            transition: {duration: 0.25},
                         }}
                     className='landing-text'
                 >
@@ -68,7 +67,7 @@ const LandingPage = () => {
                             Fully Private way to chat
                         </h2>
                         <div className='landing-cta'>
-                            <motion.button animate={{y: [0, -8, 0], transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+                            <motion.button animate={{y: [0, -8, 0], transition: { repeat: Infinity, duration: 1, ease: "easeInOut" },
                             }}>Try Chat Rooms Now
                             </motion.button>
                             <button>Learn More</button>
@@ -87,9 +86,9 @@ const LandingPage = () => {
                             opacity: 1,
                             transition: {duration: 0.5}
                         }}
+                    aria-label='A women with a finger placed on her lips'
                     className='landing-image-container'
                 >
-                    <img src={shh} alt="A women with a finger placed on her lips"/>
                     <div className="gradient-overlay"></div>
                 </motion.div>
             </div>

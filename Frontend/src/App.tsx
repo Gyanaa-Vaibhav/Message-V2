@@ -10,7 +10,7 @@ function App() {
     return (
         <>
             <NavBar/>
-            <StarAnimation/>
+            <StarAnimation number={50}/>
             <LandingPage/>
         </>
     )
