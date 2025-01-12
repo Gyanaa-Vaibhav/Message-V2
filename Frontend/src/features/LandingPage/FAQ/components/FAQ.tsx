@@ -2,7 +2,7 @@ import '../styles/FAQ.css';
 import Arrow from "/svg/Right_icon.svg?url";
 import {FAQType} from "../../components/LandingPage.tsx";
 import {useState} from "react";
-import {motion} from "../../imports/LandingPageimports.ts";
+import {motion} from "framer-motion";
 
 const FAQ = ({title,Desc}:FAQType) => {
     const [showDesc,setShowDesc] = useState<boolean>(false)
@@ -16,7 +16,7 @@ const FAQ = ({title,Desc}:FAQType) => {
             <motion.div
                 className='FAQ-title-container'
                 initial={{opacity:0,y:100}}
-                whileInView={{opacity:1,y:0}}
+                whileInView={{opacity:1,y:0,transition: { duration: 0.25, ease: "easeInOut" }}}
                 viewport={{once:true}}
             >
                 <div onClick={handelClick} className='FAQ-title'>

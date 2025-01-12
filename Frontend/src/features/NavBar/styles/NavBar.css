@@ -17,7 +17,6 @@ nav ul{
 
 nav ul li{
     color: #ffffff;
-    cursor: pointer;
     list-style: none;
     font-size: 1rem;
     letter-spacing: 1px;
@@ -53,6 +52,12 @@ nav ul li:nth-child(3):hover{
 nav ul li:nth-child(4):hover{
     scale: 1.05;
     background-color: var(--secondary-colour-hover);
+}
+
+nav ul li a{
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 @media screen and (max-width: 1200px) {

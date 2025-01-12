@@ -18,11 +18,11 @@
     --secondary-colour: #25D366;
     --secondary-colour-hover: #80ffae;
 
-    --background-primary : #1F2C35;
-    --background-primary-hover: #273641;
+    --background-primary : #121212;
+    --background-primary-hover: #1A1A1A;
 
-    --background-secondary: #2A3A45;
-    --background-secondary-hover: #32434F;
+    --background-secondary: #1A1A1A;
+    --background-secondary-hover: #333333;
 
     --primary-font : "Roboto Slab", serif;
     --secondary-font : 'OpenSans', sans-serif;
@@ -38,4 +38,12 @@ body{
 
 body,p,h1,h2,h3,h4,h5,h6{
     margin: 0;
+}
+
+#root{
+    height: 100vh;
+}
+
+a{
+    text-decoration: none;
 }

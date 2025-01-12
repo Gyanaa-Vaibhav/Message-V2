@@ -1,0 +1,31 @@
+/* Star animation container */
+.star-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000000;
+    z-index: -1;
+}
+
+/* Styling individual stars */
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%; /* Make stars circular */
+    animation: twinkle 1.5s infinite ease-in-out alternate;
+}
+
+/* Keyframes for twinkling effect */
+@keyframes twinkle {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

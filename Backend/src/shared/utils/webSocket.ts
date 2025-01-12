@@ -1,0 +1,77 @@
+// websocket.ts
+import { Server as SocketIOServer } from 'socket.io';
+import {addToChats, getChatMessages, getChatMessagesByID} from "../DataBase/query.js";
+
+type MessageObject = {
+    message:string,
+    activeUserId:number
+    userId:number,
+    timestamp:string,
+}
+
+type MessageProp = {
+    message:MessageObject,
+    to:string,
+}
+
+export default function webSocket(io: SocketIOServer): void {
+    const userMap: { [userId: string]: string } = {};
+
+    io.on('connection', (socket) => {
+        console.log(`New client connected: ${socket.id}`);
+
+        socket.on('register', (userId: string) => {
+            userMap[userId] = socket.id;
+            console.log(`User ${userId} registered with socket ID ${socket.id}`);
+        });
+
+        socket.on('message', async ({message,to}:MessageProp) => {
+            const from = Object.keys(userMap).find((key) => userMap[key] === socket.id);
+
+            if (!from) {
+                console.error('Sender not found in userMap');
+                return;
+            }
+
+            console.log(message)
+            const recipientSocketId = userMap[to];
+            if (recipientSocketId) {
+                io.to(recipientSocketId).emit('sendMessage', { message, from });
+            } else {
+                const msg = {message: message.message,userId:message.userId,activeUserId:message.activeUserId,timestamp:message.timestamp}
+                console.log("Message Object",msg)
+                await addToChats(msg)
+                console.log(`User ${to} is offline. Message saved to the database.`);
+            }
+        });
+
+        socket.on('getMessage', async ({userId,activeUserId})=>{
+            if(userId && activeUserId){
+                console.log(userId,activeUserId)
+                // const messages = await getChatMessages(activeUser,user)
+                const messages = await getChatMessagesByID(activeUserId,userId)
+                socket.emit(`userChats`,messages)
+            }
+        })
+
+        socket.on('disconnect', () => {
+            console.log(`Disconnected: ${socket.id}`);
+            const userId = Object.keys(userMap).find((key) => userMap[key] === socket.id);
+            if (userId) {
+                delete userMap[userId];
+            }
+        });
+    });
+}
+
+
+// socket.on("fileUpload", (data) => {
+//     console.log(data)
+//     console.log(`Received file: ${data.fileName}`);
+//     // Broadcast the file to all connected clients
+//     io.emit("fileReceived", {
+//         fileName: data.fileName,
+//         fileType: data.fileType,
+//         fileData: data.fileData, // Base64-encoded data
+//     });
+// });

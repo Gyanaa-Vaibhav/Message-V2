@@ -2,5 +2,5 @@
 import { Request, Response } from 'express';
 
 export const renderLogin = (req: Request, res: Response) => {
-    res.send('Render Login page here');
+    res.json({success:true,message:'Render Login page here'});
 };

@@ -1,3 +1,3 @@
 export const renderLogin = (req, res) => {
-    res.send('Render Login page here');
+    res.json({ success: true, message: 'Render Login page here' });
 };
