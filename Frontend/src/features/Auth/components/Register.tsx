@@ -14,7 +14,6 @@ export default  function Register(){
     const usernameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const confirmPasswordRef = useRef<HTMLInputElement>(null);
-    const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/register' : '/register';
 
     const [showPopup, setShowPopup] = useState<boolean>(false);
     const [popupMessage, setPopupMessage] = useState<string>("");
@@ -24,7 +23,9 @@ export default  function Register(){
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const [isFocusedOnCNF, setIsFocusedOnCNF] = useState<boolean>(false);
 
-    const [errors, setErrors] = useState<Errors>({ username:'' ,email: '', password: '' ,confirmPassword: '' });
+    const [errors, setErrors] = useState<Errors>({
+        username:'' ,email: '', password: '' ,confirmPassword: ''
+    });
 
     const handleFocus = () => setIsFocused(true);
     const handleFocusOnCNF = () => setIsFocusedOnCNF(true);
@@ -39,7 +40,9 @@ export default  function Register(){
         setIsFocusedOnCNF(false)
     };
 
-    const submitObjects = {emailRef,passwordRef,confirmPasswordRef,usernameRef,setErrors,url,setPopupMessage,setShowPopup}
+    const submitObjects = {
+        emailRef,passwordRef,confirmPasswordRef,usernameRef,setErrors,setPopupMessage,setShowPopup
+    }
 
     const closePopup = () => {
         setShowPopup(false);
@@ -64,7 +67,9 @@ export default  function Register(){
                         required={true}
                         autoComplete={'off'}
                     />
-                    {errors.username && <small style={{color: '#ffa5a5'}}>{errors.username}</small>}
+                    {errors.username &&
+                        <small style={{color: '#ffa5a5'}}>{errors.username}</small>
+                    }
 
                     <Input
                         ref={emailRef}
@@ -75,7 +80,9 @@ export default  function Register(){
                         required={true}
                         autoComplete={'off'}
                     />
-                    {errors.email && <small style={{color: '#ffa5a5'}}>{errors.email}</small>}
+                    {errors.email &&
+                        <small style={{color: '#ffa5a5'}}>{errors.email}</small>
+                    }
 
                     <div>
                         <label htmlFor='password'>
@@ -103,7 +110,9 @@ export default  function Register(){
                             )}
                         </div>
                     </div>
-                    {errors.password && <small style={{color: '#ffa5a5'}}>{errors.password}</small>}
+                    {errors.password &&
+                        <small style={{color: '#ffa5a5'}}>{errors.password}</small>
+                    }
 
                     <div>
                         <label htmlFor='confirm_password'>
@@ -131,7 +140,9 @@ export default  function Register(){
                             )}
                         </div>
                     </div>
-                    {errors.confirmPassword && <small style={{color: '#ffa5a5'}}>{errors.confirmPassword}</small>}
+                    {errors.confirmPassword &&
+                        <small style={{color: '#ffa5a5'}}>{errors.confirmPassword}</small>
+                    }
 
                     <Button
                         label="Register"
