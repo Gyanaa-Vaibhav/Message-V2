@@ -10,6 +10,7 @@ interface DecodedJWT {
 
 function sign(req:Request, res:Response, next:NextFunction){
     const token = jwt.sign({user:'Bob',userId:2},'Hello',{ expiresIn: '12hr' })
+    console.log(token)
     let toSend = ''
     req.body.token = token
     next()

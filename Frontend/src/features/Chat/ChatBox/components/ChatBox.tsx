@@ -157,7 +157,7 @@ const ChatBox = ({user,activeUser,activeUserId,userId}:Props) => {
                      onScroll={handleScroll}
                 >
                     <>
-                        {m}
+                        {/*{m}*/}
                     </>
                     <div className='chat-container-spacer'></div>
                     {messages.map((m:Message,i:number)=> {
