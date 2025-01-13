@@ -1,6 +1,7 @@
 // websocket.ts
 import { Server as SocketIOServer } from 'socket.io';
-import {addToChats, getChatMessages, getChatMessagesByID} from "../DataBase/query.js";
+import {getChatMessages, getChatMessagesByID} from "../DataBase/query.js";
+import {addToChats} from "../DataBase/addQueries/addtoChat.js";
 
 type MessageObject = {
     message:string,
@@ -75,3 +76,4 @@ export default function webSocket(io: SocketIOServer): void {
 //         fileData: data.fileData, // Base64-encoded data
 //     });
 // });
+
