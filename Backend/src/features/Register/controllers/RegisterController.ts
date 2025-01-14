@@ -1,50 +1,56 @@
 // Controller for Register
 import {NextFunction, Request, Response} from 'express';
-import crypto from 'crypto'
+import * as crypto from 'crypto'
 import {hashPassword} from "../utils/hashPassword.js";
 import dotenv from "dotenv";
-import {getUser} from "../../../shared/DataBase/getQueries/getUser.js";
 import {addUser} from "../../../shared/DataBase/dbExports.js";
+import {checkUser, encryptPrivateKey, genSalts, sendSaltsEmail} from "../models/RegisterModel.js";
 dotenv.config();
 
-export const renderRegister = (req:Request, res:Response) => {
+export const renderRegister = (res:Response) => {
     res.send('Render Register page here');
 };
 
 export const handelRegister = async (req:Request, res:Response,next:NextFunction) => {
     try {
-        if(!process.env.PASSWORD_HASH) return;
-        const password = hashPassword(req.body.password,process.env.PASSWORD_HASH)
-        const userObject = {username:req.body.username,password,email:req.body.email}
+        if(!process.env.PASSWORD_HASH) throw new Error('.ENV missing');
 
-        const [user] = await getUser( req.body.email,  req.body.username)
-        if(user){
-            console.log(user)
-            if(user.user_name === req.body.username){
-                res.json({success:false,message:'User already exist please login',username:true});
-                return;
-            }
-            if(user.email === req.body.email){
-                res.json({success:false,message:'User already exist please login'})
-                return;
-            }
+        const email = req.body.email;
+        const username = req.body.username;
+        const password = hashPassword(req.body.password,process.env.PASSWORD_HASH);
+
+        const userExists = await checkUser(email,username)
+        if(userExists){
+            res.json(userExists)
             return;
         }
 
+        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem',
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem',
+            },
+        });
+
+        const concatenatedSalts = genSalts();
+        const hashedPrivateKey = encryptPrivateKey(privateKey,email)
+        const encryptedPrivateKey = encryptPrivateKey(hashedPrivateKey,concatenatedSalts)
+
+        sendSaltsEmail(concatenatedSalts,req.body.email);
+
+        const userObject = {username,password,email,public_key:publicKey,private_key:encryptedPrivateKey}
         await addUser(userObject)
-        // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-        //     modulusLength: 2048,
-        //     publicKeyEncoding: {
-        //         type: 'spki',
-        //         format: 'pem',
-        //     },
-        //     privateKeyEncoding: {
-        //         type: 'pkcs8',
-        //         format: 'pem',
-        //     },
-        // });
-        res.json({success:false,message:'Failed'})
-    }catch (e){
-        next(e)
+
+        res.json({success:true,message:'Registration Successful',hashedPrivateKey})
+
+    }catch (error:any){
+        console.log(error.stack)
+        console.log(error)
+        next(error)
     }
 }

@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken'
 import {NextFunction, Request, Response} from "express";
+import dotenv from 'dotenv'
+dotenv.config();
 
 interface DecodedJWT {
     user: string,
@@ -39,7 +41,10 @@ function verifyToken(req: Request, res: Response, next: NextFunction) {
     const token = authHeader.split(' ')[1];
 
     try {
-        req.body.user = jwt.verify(token, 'Hello') as DecodedJWT;
+        const accessKey = process.env.ACCESS_SECRET;
+        if(!accessKey) return;
+        req.body.user = jwt.verify(token, accessKey) as DecodedJWT;
+        console.log("User DATA",req.body.user)
         next();
     } catch (err: any) {
         if (err.name === 'TokenExpiredError') {
@@ -55,6 +60,22 @@ function verifyToken(req: Request, res: Response, next: NextFunction) {
         });
         return;
     }
+}
+
+type Payload = {user_id:string,username:string,email:string}
+
+// Generate access token (short-lived)
+export function generateAccessToken(payload:Payload) {
+    const accessKey = process.env.ACCESS_SECRET;
+    if(!accessKey) return;
+    return jwt.sign(payload, accessKey, { expiresIn: '6h' });
+}
+
+// Generate refresh token (long-lived)
+export function generateRefreshToken(payload:Payload) {
+    const refreshKey = process.env.REFRESH_SECRET;
+    if(!refreshKey) return;
+    return jwt.sign(payload, refreshKey, { expiresIn: '7d' });
 }
 
 export {sign,decode,verifyToken}

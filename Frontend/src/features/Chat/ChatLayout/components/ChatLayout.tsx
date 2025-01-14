@@ -5,7 +5,9 @@ import React, {Dispatch, SetStateAction} from "react";
 type User = {
     name: string;
     message: string;
+    recipitent_username:string,
     timestamp: string;
+    recipitent_id:number,
     recipient_id:number;
 };
 
@@ -22,9 +24,8 @@ const ChatLayout = ({setUser,selectedUser,setSelectedUserId}:Props) => {
         setUser(user)
     };
 
-
     React.useEffect(()=>{
-        const token = localStorage.getItem('auth')
+        const token = localStorage.getItem('accessToken')
         setUsers([])
         fetch('http://localhost:5172/users',{
             method:'GET',
@@ -34,9 +35,11 @@ const ChatLayout = ({setUser,selectedUser,setSelectedUserId}:Props) => {
         })
             .then(res=>res.json())
             .then(data => {
+                console.log(data)
                 setUsers(data.users)
             })
     },[])
+
 
     const userChat:JSX.Element[] = users.map(m=> {
         const date = new Date(m.timestamp)
@@ -48,15 +51,15 @@ const ChatLayout = ({setUser,selectedUser,setSelectedUserId}:Props) => {
             <div
                 key={m.name}
                 onClick={()=> {
-                    setSelectedUserId(m.recipient_id);
-                    handleUserClick(m.name)
+                    setSelectedUserId(m.recipitent_id);
+                    handleUserClick(m.recipitent_username)
                 }}
-                className={`user-chat ${selectedUser === m.name ? 'selected' : ''}`}
+                className={`user-chat ${selectedUser === m.recipitent_username ? 'selected' : ''}`}
             >
                 <img src="url" alt="U"/>
                 <div className='user-details'>
                     <div className='user-name'>
-                        <h4>{m.name}</h4>
+                        <h4>{m.recipitent_username}</h4>
                         <p className='user-chat-last-message'>{m.message}</p>
                     </div>
                     <p>{time}</p>

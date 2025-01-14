@@ -7,7 +7,7 @@ import NavBar from "../../NavBar/components/NavBar.tsx";
 import HideIcon from '/svg/hide_icon.svg?url'
 import ShowIcon from '/svg/show_icon.svg?url'
 import {Errors} from "../types/Login.ts";
-import {handelSubmit} from "../utils/handelSubmit.ts";
+import {handelRegisterSubmit} from "../utils/handelRegisterSubmit.ts";
 
 export default  function Register(){
     const emailRef = useRef<HTMLInputElement>(null);
@@ -147,7 +147,7 @@ export default  function Register(){
                     <Button
                         label="Register"
                         type="submit"
-                        onClick={(e)=>handelSubmit({...submitObjects,e})}
+                        onClick={(e)=>handelRegisterSubmit({...submitObjects,e})}
                     />
                     <p className="register-link">Already have an account? <a href="/login">Login here</a></p>
                 </form>

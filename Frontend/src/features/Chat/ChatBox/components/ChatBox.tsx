@@ -8,12 +8,13 @@ import UploadHandler from "./UploadHandler.tsx";
 import useSocket from "../hooks/useSocket.ts";
 import {handleInputChange, sendMessage} from "../utils/handelMessage.ts";
 
-const ChatBox = ({user,activeUser,activeUserId,userId}:Props) => {
+const ChatBox = ({user,activeUser,activeUserId,userId,userEmail}:Props) => {
     const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
     const [messages,setMessages] = React.useState<Message[]>([]);
     const [newMessage, setNewMessage] = React.useState<boolean>(false);
     const [messagePopUp,setMessagePopUp] = React.useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = React.useState(true);
+    console.log(userEmail)
 
     const socket = useSocket({activeUserId,userId,setMessages,setNewMessage});
 
@@ -157,7 +158,7 @@ const ChatBox = ({user,activeUser,activeUserId,userId}:Props) => {
                      onScroll={handleScroll}
                 >
                     <>
-                        {/*{m}*/}
+                        {m}
                     </>
                     <div className='chat-container-spacer'></div>
                     {messages.map((m:Message,i:number)=> {

@@ -44,6 +44,7 @@ export default function useSocket({activeUserId,userId,setMessages,setNewMessage
     React.useEffect(() => {
         // Fetching User Chats
         if (socket){
+            console.log(userId,activeUserId)
             socket.on(`userChats`,(message:Message[])=>{
                 setMessages(message)
             })

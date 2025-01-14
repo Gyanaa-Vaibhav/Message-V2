@@ -3,16 +3,18 @@ import {pool} from "../db.js";
 type AddUser = {
     username:string,
     email:string,
-    password:string
+    password:string,
+    public_key:string,
+    private_key:string
 }
 
-export async function addUser({username,password,email}:AddUser){
+export async function addUser({username,password,email,public_key,private_key}:AddUser){
     const query=`
         INSERT INTO 
-            userss(user_name,password,email) 
+            users(username,password,email,public_key,private_key,created_at) 
         VALUES 
-            ($1,$2,$3);
+            ($1,$2,$3,$4,$5,NOW());
     `;
-    const values = [username,password,email];
+    const values = [username,password,email,public_key,private_key];
     await pool.query(query,values);
 }

@@ -1,83 +1,40 @@
 import '../styles/Login.css';
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Input from "../Input/Input.tsx";
 import Button from "../Button/Button.tsx";
 import StarAnimation from "../../LandingPage/components/StarAnimation.tsx";
 import NavBar from "../../NavBar/components/NavBar.tsx";
 import HideIcon from '/svg/hide_icon.svg?url'
 import ShowIcon from '/svg/show_icon.svg?url'
+import {handelLoginSubmit} from "../utils/handelLoginSubmit.ts";
 
 const Login = () => {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+    const saltRef = useRef<HTMLTextAreaElement>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
-    const [showError, setShowError] = useState(false)
-    const [errors, setErrors] = useState({ email: '', password: '' });
-    const [isFocused, setIsFocused] = useState(false);
+    const [showError, setShowError] = useState<boolean>(false);
+    const [errors, setErrors] = useState({ email: '', password: '', keys:''});
+    const [isFocused, setIsFocused] = useState<boolean>(false);
     const handleFocus = () => setIsFocused(true);
     const handleBlur = () => setIsFocused(false);
     const [showPassword,setShowPassword] = useState<boolean>(false);
-    const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/login' : '/login';
+    const [showKeyInput,setShowKeyInput] = useState<boolean>(false);
 
+    const privateKey = localStorage.getItem('privateKey')
 
-    const validateEmail = (value:string):boolean => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(value);
-    };
+    useEffect(() => {
+        if(privateKey) return;
+        setShowKeyInput(true);
+    },[privateKey]);
 
-    const validatePassword = (value:string):boolean => {
-        return value.length >= 8;
-    };
+    useEffect(() => {
+        setTimeout(() => {
+            if(showError) setShowError(false);
+        }, 3000);
+    }, [showError]);
 
-    console.log(showPassword)
-    // fetch(url).then(res => res.json()).then(data => console.log(data))  //Test Fetch
-
-    function handelClick(e: React.MouseEvent<HTMLButtonElement>){
-        if(!emailRef.current || !passwordRef.current) return;
-        e.preventDefault();
-
-        const emailError = validateEmail(emailRef.current.value) ? '' : 'Invalid email address';
-        const passwordError = validatePassword(passwordRef.current.value) ? '' : 'Password must be at least 8 characters long';
-
-        if (!emailError && !passwordError) {
-            setErrors({ email: '', password: '' });
-        } else {
-            setErrors({ email: emailError, password: passwordError });
-            return
-        }
-
-        fetch(url,{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Specify content type
-            },
-            body: JSON.stringify({
-                email:emailRef.current.value,
-                password:passwordRef.current.value
-            }),
-            credentials: 'include',
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                localStorage.setItem('accessToken', data.accessToken);
-                window.location.pathname = '/chat'; // Redirect to the home page
-            })
-            .catch((error) => {
-                console.error('Fetch error:', error)
-                setErrorMessage('Invalid username or password. Please try again.'); // Set error message
-                setShowError(true); // Show popup
-
-                // Hide the notification after 3 seconds
-                setTimeout(() => {
-                    setShowError(false);
-                }, 3000);
-            });
-    }
+    const loginObject = {emailRef,passwordRef,saltRef,showKeyInput,setErrors,setShowError,setErrorMessage};
 
     return (
         <>
@@ -133,10 +90,30 @@ const Login = () => {
 
                     {errors.password && <small style={{ color: '#ffa0a0' }}>{errors.password}</small>}
 
+                    {showKeyInput &&<>
+                            <div>
+                            <label htmlFor='salt'>
+                                Keys:
+                            </label>
+                            <textarea
+                                style={{width: '100%',boxSizing:'border-box',resize:'none',overflowY:'auto',scrollbarWidth:'thin',scrollbarColor:'rgba(255, 255, 255, 0.16) transparent'}}
+                                ref={saltRef}
+                                rows={5}
+                                name={'salt'}
+                                id={"salt"}
+                                placeholder={"Enter your Keys/Salts"}
+                                required={true}
+                                autoComplete={'off'}
+                            />
+                        </div>
+                        {errors.keys && <small style={{ color: '#ffa0a0' }}>{errors.keys}</small>}
+                    </>
+                    }
+
                     <Button
                         label="Login"
                         type="submit"
-                        onClick={(e:React.MouseEvent<HTMLButtonElement>)=>handelClick(e)}
+                        onClick={(e:React.MouseEvent<HTMLButtonElement>)=>handelLoginSubmit({...loginObject,e})}
                     />
 
                     <p className="register-link">Don't have an account? <a href="/register">Register here</a></p>

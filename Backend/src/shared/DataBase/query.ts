@@ -8,35 +8,40 @@ export async function getAllUsers(){
 
 
 export async function getUserId(name:string):Promise<number|null> {
-    const query = `SELECT id FROM users WHERE Lower(name) = Lower($1);`
-    const trimmedName = name.trim();
-    const values = [trimmedName];
+    const query = `SELECT user_id FROM users WHERE username = $1;`
+    // const trimmedName = name.trim();
+    const values = [name];
     const {rows} = await pool.query(query,values);
-    if(!rows) return null
-    return rows[0].id || null
+    if(rows.length === 0) return null
+    return rows[0].user_id || null
 }
 
 export async function getChats(user:string){
     const userID = await getUserId(user)
     const query = `
-    SELECT DISTINCT
-        ON (recipient_id)
-            message,
-            name,
-            recipient_id,
-            timestamp
+        SELECT DISTINCT ON (m.recipitent_id)
+            m.message,
+            m.sender_id,
+            sender.username AS sender_username,
+            m.recipitent_id,
+            recipient.username AS recipitent_username,
+            m.timestamp
         FROM
             messages m
-        JOIN
-            users u
-        ON 
-            m.recipient_id = u.ID
+                JOIN
+            users sender
+            ON
+                m.sender_id = sender.user_id
+                JOIN
+            users recipient
+            ON
+                m.recipitent_id = recipient.user_id
         WHERE
-            m.sender_id = ($1)
-        AND
-            m.recipient_id IS NOT NULL
+            m.sender_id = $1
+          AND
+            m.recipitent_id IS NOT NULL
         ORDER BY
-            recipient_id,
+            m.recipitent_id,
             m.timestamp DESC
     `;
     const values = [userID]
@@ -73,7 +78,7 @@ export async function getChatMessagesByID(activeUser:string, chatUser:string){
             recipitent_id as "userId",
             sender_id as "activeUserId"
         FROM
-            messageing m 
+            messages m 
         where 
             m.sender_id=$1 AND m.recipitent_id=$2
         OR

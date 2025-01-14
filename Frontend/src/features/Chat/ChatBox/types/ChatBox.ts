@@ -4,6 +4,7 @@ type Props = {
     activeUser: string;
     activeUserId:number;
     userId:number;
+    userEmail:string
 };
 
 type Message = {

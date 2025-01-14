@@ -1,4 +1,5 @@
 import {SubmitTypes} from "../types/Login.ts";
+// import decryptPrivateKey from "../../../shared/decryptPrivateKey.ts";
 const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/register' : '/register';
 
 const validateEmail = (value: string) => {
@@ -49,7 +50,7 @@ const validateConfirmPassword = (password:string,confirmPassword: string) => {
 }
 
 
-export function handelSubmit({e,emailRef,passwordRef,confirmPasswordRef,usernameRef,setErrors,setPopupMessage,setShowPopup}:SubmitTypes){
+export function handelRegisterSubmit({e,emailRef,passwordRef,confirmPasswordRef,usernameRef,setErrors,setPopupMessage,setShowPopup}:SubmitTypes){
     e.preventDefault();
     if(!emailRef.current || !passwordRef.current || !usernameRef.current || !confirmPasswordRef.current) return;
 
@@ -82,6 +83,7 @@ export function handelSubmit({e,emailRef,passwordRef,confirmPasswordRef,username
         .then(data => {
             console.log(data)
             if (data.success) {
+                localStorage.setItem('privateKey',data.hashedPrivateKey)
                 setPopupMessage('You have successfully registered! Redirecting to login page...');
                 setShowPopup(true)
                 setTimeout(()=>{window.location.pathname = '/login'}, 3000);
@@ -89,6 +91,7 @@ export function handelSubmit({e,emailRef,passwordRef,confirmPasswordRef,username
                 if(data.username){
                     setErrors({username: 'Username already exists use different name', email: '', password: '' , confirmPassword: ''});
                 }else{
+                    // if(emailRef.current) console.log(decryptPrivateKey(data.hashedPrivateKey,emailRef.current.value))
                     setPopupMessage(data.message);
                     setShowPopup(true);
                     setTimeout(()=>{setShowPopup(false)}, 3000);

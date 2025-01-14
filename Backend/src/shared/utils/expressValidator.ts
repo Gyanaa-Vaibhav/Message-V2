@@ -5,7 +5,7 @@ function validateUser(param:string){
     return body(param)
         .notEmpty()
         .withMessage(`${param} is required`)
-        .isAlphanumeric()
+        .matches(/^[a-zA-Z0-9_]+$/)
         .withMessage(`${param} must contain only letters and numbers`)
         .escape()
 }

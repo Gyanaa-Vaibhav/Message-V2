@@ -15,6 +15,7 @@ import loginRouter from "./features/Login/routes/LoginRoute.js";
 import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
 import {decode, sign, verifyToken} from "./shared/utils/jwt.js";
 import {getChatMessages, getChats} from "./shared/DataBase/query.js";
+import nodemailer from 'nodemailer';
 
 
 
@@ -76,7 +77,8 @@ app.get('/me',(req,res)=>{
 
 app.get('/users', async (req,res)=>{
     const user = req.body.user || 'alice';
-    const chats  = await getChats(user.user)
+    console.log(user.username)
+    const chats  = await getChats(user.username)
     res.json({success:true,users:chats})
 })
 

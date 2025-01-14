@@ -6,20 +6,23 @@ import React from "react";
 export default function MainChat() {
     const [activeUser, setActiveUser] = React.useState<string>('');
     const [activeUserId, setActiveUserId] = React.useState<number>(NaN);
+    const [activeUserEmail, setActiveUserEmail] = React.useState<string>('');
     const [selectedUser, setSelectedUser] = React.useState<string>('');
     const [selectedUserId, setSelectedUserId] = React.useState<number>(NaN);
 
     React.useEffect(() => {
-        const token = localStorage.getItem('auth');
+        const token = localStorage.getItem('accessToken');
         if (token) {
             fetch('http://localhost:5172/me', {
                 headers: { Authorization: `Bearer ${token}` },
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    if (data?.user?.user) {
-                        setActiveUserId(Number(data.user.userId))
+                    console.log(data)
+                    if (data?.user) {
+                        setActiveUserId(Number(data.user.user_id))
                         setActiveUser(data.user.user);
+                        setActiveUserEmail(data.user.email)
                     }
                 });
         }
@@ -35,6 +38,7 @@ export default function MainChat() {
                 />
                 <ChatBox
                     user={selectedUser}
+                    userEmail={activeUserEmail}
                     activeUser={activeUser}
                     activeUserId={activeUserId}
                     userId={selectedUserId}
