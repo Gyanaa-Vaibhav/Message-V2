@@ -12,7 +12,6 @@ interface DecodedJWT {
 
 function sign(req:Request, res:Response, next:NextFunction){
     const token = jwt.sign({user:'Bob',userId:2},'Hello',{ expiresIn: '12hr' })
-    console.log(token)
     let toSend = ''
     req.body.token = token
     next()
@@ -44,7 +43,6 @@ function verifyToken(req: Request, res: Response, next: NextFunction) {
         const accessKey = process.env.ACCESS_SECRET;
         if(!accessKey) return;
         req.body.user = jwt.verify(token, accessKey) as DecodedJWT;
-        console.log("User DATA",req.body.user)
         next();
     } catch (err: any) {
         if (err.name === 'TokenExpiredError') {

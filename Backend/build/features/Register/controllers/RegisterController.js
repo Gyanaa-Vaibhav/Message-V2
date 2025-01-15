@@ -33,7 +33,7 @@ export const handelRegister = async (req, res, next) => {
         const concatenatedSalts = genSalts();
         const hashedPrivateKey = encryptPrivateKey(privateKey, email);
         const encryptedPrivateKey = encryptPrivateKey(hashedPrivateKey, concatenatedSalts);
-        sendSaltsEmail(concatenatedSalts, req.body.email);
+        sendSaltsEmail(concatenatedSalts, email, username);
         const userObject = { username, password, email, public_key: publicKey, private_key: encryptedPrivateKey };
         await addUser(userObject);
         res.json({ success: true, message: 'Registration Successful', hashedPrivateKey });

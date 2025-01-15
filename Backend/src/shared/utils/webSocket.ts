@@ -1,6 +1,6 @@
 // websocket.ts
 import { Server as SocketIOServer } from 'socket.io';
-import {getChatMessages, getChatMessagesByID} from "../DataBase/query.js";
+import {getChatMessagesByID} from "../DataBase/query.js";
 import {addToChats} from "../DataBase/addQueries/addtoChat.js";
 
 type MessageObject = {
@@ -31,25 +31,21 @@ export default function webSocket(io: SocketIOServer): void {
 
             if (!from) {
                 console.error('Sender not found in userMap');
-                return;
             }
 
-            console.log(message)
             const recipientSocketId = userMap[to];
             if (recipientSocketId) {
                 io.to(recipientSocketId).emit('sendMessage', { message, from });
             } else {
                 const msg = {message: message.message,userId:message.userId,activeUserId:message.activeUserId,timestamp:message.timestamp}
-                console.log("Message Object",msg)
-                await addToChats(msg)
+                // console.log("Message Object",msg)
+                // await addToChats(msg)
                 console.log(`User ${to} is offline. Message saved to the database.`);
             }
         });
 
         socket.on('getMessage', async ({userId,activeUserId})=>{
             if(userId && activeUserId){
-                console.log(userId,activeUserId)
-                // const messages = await getChatMessages(activeUser,user)
                 const messages = await getChatMessagesByID(activeUserId,userId)
                 socket.emit(`userChats`,messages)
             }

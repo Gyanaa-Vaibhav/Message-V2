@@ -1,10 +1,9 @@
 // types for ChatBox
+
 type Props = {
-    user: string;
     activeUser: string;
     activeUserId:number;
-    userId:number;
-    userEmail:string
+    userEmail:string;
 };
 
 type Message = {

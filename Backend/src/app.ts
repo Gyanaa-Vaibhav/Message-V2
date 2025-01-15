@@ -14,8 +14,9 @@ import webSocket from "./shared/utils/webSocket.js";
 import loginRouter from "./features/Login/routes/LoginRoute.js";
 import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
 import {decode, sign, verifyToken} from "./shared/utils/jwt.js";
-import {getChatMessages, getChats} from "./shared/DataBase/query.js";
-import nodemailer from 'nodemailer';
+import {getChats} from "./shared/DataBase/query.js";
+import {getUser, getUserList} from "./shared/DataBase/dbExports.js";
+import {getChatUsers, getChatUsersLastMessage} from "./shared/DataBase/getQueries/getChatUsers.js";
 
 
 
@@ -61,7 +62,6 @@ app.use('/login',loginRouter)
 app.use('/register',RegisterRouter)
 
 app.get('/test',(req, res) => {
-    console.log(req.body)
     res.json({success:true,message:'Hello Hi Serve Works'})
 });
 
@@ -69,28 +69,30 @@ app.use(sign)
 // app.use(decode)
 app.use(verifyToken)
 
-app.get('/me',(req,res)=>{
-    const user = req.body.user
-    console.log(user);
+app.get('/me',async (req,res)=>{
+    const [user] = await getUser({user_id:req.body.user.user_id})
     res.json({success:true,user})
 })
 
-app.get('/users', async (req,res)=>{
+app.get('/usersChat', async (req,res)=>{
     const user = req.body.user || 'alice';
-    console.log(user.username)
-    const chats  = await getChats(user.username)
-    res.json({success:true,users:chats})
+    const users = await getChatUsers(user.user_id)
+    const Data = await Promise.all(users?.map(async (m)=>{
+        const [des] = await getChatUsersLastMessage(user.user_id,m.recipient_id)
+        return des;
+    }))
+    res.json({success:true,users:Data})
 })
 
-app.get('/message/:user',async (req,res)=>{
-    const userName:string = req.params.user
-    const activeUser = req.body.user.user
-    const message = await getChatMessages(activeUser,userName)
-    res.json({success:true,message})
+app.post('/users', async (req,res)=>{
+    const username = req.body.search;
+    const users = await getUserList(username)
+    res.json({success:true,users})
 })
 
 // Socket Consumer
 webSocket(io);
+// TODO add GLOBAL ERROR Handler
 
 server.listen(PORT,()=>{
     console.log(`Listening on Port ${PORT}`)

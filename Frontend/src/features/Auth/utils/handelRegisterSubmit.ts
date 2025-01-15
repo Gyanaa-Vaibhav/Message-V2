@@ -1,5 +1,4 @@
 import {SubmitTypes} from "../types/Login.ts";
-// import decryptPrivateKey from "../../../shared/decryptPrivateKey.ts";
 const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/register' : '/register';
 
 const validateEmail = (value: string) => {
@@ -91,7 +90,6 @@ export function handelRegisterSubmit({e,emailRef,passwordRef,confirmPasswordRef,
                 if(data.username){
                     setErrors({username: 'Username already exists use different name', email: '', password: '' , confirmPassword: ''});
                 }else{
-                    // if(emailRef.current) console.log(decryptPrivateKey(data.hashedPrivateKey,emailRef.current.value))
                     setPopupMessage(data.message);
                     setShowPopup(true);
                     setTimeout(()=>{setShowPopup(false)}, 3000);

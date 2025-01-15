@@ -2,6 +2,7 @@ import React from "react";
 import {io, Socket} from "socket.io-client";
 import {Message, MessageData} from "../types/ChatBox.ts";
 import {handleSendMessage} from "../utils/handelMessage.ts";
+import {User} from "../../ChatLayout/types/ChatLayout.ts";
 
 const SOCKET_URL  = import.meta.env.VITE_SERVER_IP
 
@@ -10,6 +11,7 @@ type Props = {
     userId:number,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
     setNewMessage: React.Dispatch<React.SetStateAction<boolean>>,
+    setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 export function useSocketInstance(){
@@ -31,7 +33,7 @@ export function useSocketInstance(){
     return socket
 }
 
-export default function useSocket({activeUserId,userId,setMessages,setNewMessage}:Props){
+export default function useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList}:Props){
     const socket = useSocketInstance()
 
     React.useEffect(()=>{
@@ -44,26 +46,35 @@ export default function useSocket({activeUserId,userId,setMessages,setNewMessage
     React.useEffect(() => {
         // Fetching User Chats
         if (socket){
-            console.log(userId,activeUserId)
-            socket.on(`userChats`,(message:Message[])=>{
-                setMessages(message)
-            })
+            console.log("Selected User",userId,"Logged In User",activeUserId)
+
+            const handleUserChats = (message: Message[]) => {
+                setMessages(message);
+            };
+
+            socket.on(`userChats`,handleUserChats)
 
             socket.emit('getMessage', {userId,activeUserId})
+
+            return()=>{
+                socket.off(`userChats`,handleUserChats)
+            }
         }
     }, [userId, socket, activeUserId, setMessages]);
 
     React.useEffect(() => {
         if (!socket) return;
 
-        socket.on('sendMessage', (messageData: MessageData) => {
+        const handleIncomingMessage = (messageData: MessageData) => {
+            console.log("From Socket", messageData);
             setNewMessage(true)
-            console.log("From Socket",messageData);
-            handleSendMessage({messageData, userId, setMessages});
-        });
+            handleSendMessage({ messageData, userId, setMessages, setUsersList});
+        };
+
+        socket.on('sendMessage', handleIncomingMessage);
 
         return () => {
-            socket.off('sendMessage', handleSendMessage);
+            socket.off('sendMessage', handleIncomingMessage);
         };
     }, [setMessages, setNewMessage, socket, userId]);
 

@@ -41,7 +41,7 @@ export const handelRegister = async (req:Request, res:Response,next:NextFunction
         const hashedPrivateKey = encryptPrivateKey(privateKey,email)
         const encryptedPrivateKey = encryptPrivateKey(hashedPrivateKey,concatenatedSalts)
 
-        sendSaltsEmail(concatenatedSalts,req.body.email);
+        sendSaltsEmail(concatenatedSalts,email,username);
 
         const userObject = {username,password,email,public_key:publicKey,private_key:encryptedPrivateKey}
         await addUser(userObject)

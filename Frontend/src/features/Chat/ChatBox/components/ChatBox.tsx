@@ -7,23 +7,32 @@ import send from '/svg/send_icon.svg?url'
 import UploadHandler from "./UploadHandler.tsx";
 import useSocket from "../hooks/useSocket.ts";
 import {handleInputChange, sendMessage} from "../utils/handelMessage.ts";
+import decryptPrivateKey from "../../../../shared/decryptPrivateKey.ts";
+import {useUserContext} from "../ChatContext.tsx";
 
-const ChatBox = ({user,activeUser,activeUserId,userId,userEmail}:Props) => {
+const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
+    const {userId,user,setUsersList} = useUserContext()
     const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
     const [messages,setMessages] = React.useState<Message[]>([]);
     const [newMessage, setNewMessage] = React.useState<boolean>(false);
     const [messagePopUp,setMessagePopUp] = React.useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = React.useState(true);
-    console.log(userEmail)
+    const key = localStorage.getItem('privateKey')
+    try{
+        if(key && userEmail) decryptPrivateKey(key,userEmail)
+    }catch (e){
+        localStorage.removeItem('privateKey')
+        window.location.href = '/login'
+        console.log(e)
+    }
 
-    const socket = useSocket({activeUserId,userId,setMessages,setNewMessage});
+    const socket = useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList});
 
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);
     const firstLoad = useRef<boolean>(false);
-
-    const messageObject = {socket, outGoingMessage, setMessages, user, setOutGoingMessage, activeUser,textareaRef,activeUserId,userId,setNewMessage}
+    const messageObject = {socket, outGoingMessage, setMessages, setOutGoingMessage, activeUser,textareaRef,activeUserId,userId,setNewMessage,setUsersList}
 
     const scrollToBottom = React.useCallback(() => {
         if(!firstLoad.current){
@@ -63,7 +72,7 @@ const ChatBox = ({user,activeUser,activeUserId,userId,userEmail}:Props) => {
         if(firstLoad.current) firstLoad.current=false;
         if(!textareaRef.current) return
         textareaRef.current.focus();
-    },[user])
+    },[userId])
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -167,7 +176,6 @@ const ChatBox = ({user,activeUser,activeUserId,userId,userEmail}:Props) => {
                             <div tabIndex={0} key={i} className={`message ${(m.activeUserId) === activeUserId ? 'self' : ''}`}>
                                 <div className='message-bubble'>
                                     <div className='message-user-info'>
-                                        {/*<p className='user'>{m.sender}</p>*/}
                                         <p className='time'>{time.slice(0,-3)}</p>
                                         <p className='user-message'>{m.message}</p>
                                     </div>

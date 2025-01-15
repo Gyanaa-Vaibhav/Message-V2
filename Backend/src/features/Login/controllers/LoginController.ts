@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js";
 import {NextFunction, Request, Response} from 'express';
 import {hashPassword} from "../../Register/utils/hashPassword.js";
 import dotenv from "dotenv";
-import {getUserData} from "../../../shared/DataBase/getQueries/getUserData.js";
+import {getUserData} from "../../../shared/DataBase/dbExports.js";
 import {generateAccessToken, generateRefreshToken} from "../../../shared/utils/jwt.js";
 dotenv.config()
 
@@ -17,7 +17,7 @@ export const handelLogin = async (req: Request, res: Response,next:NextFunction)
         const email = req.body.email
         const [userData] = await getUserData(email);
         if(!userData) {
-            res.json({success:false,message:'User does not exists please login',email:true})
+            res.json({success:false,message:'User does not exists please register',email:true})
             return;
         }
 
@@ -81,6 +81,6 @@ export const handelLogin = async (req: Request, res: Response,next:NextFunction)
             accessToken,
         });
     }catch (e){
-        next() // TODO add GLOBAL ERROR Handler
+        next(e)
     }
 }

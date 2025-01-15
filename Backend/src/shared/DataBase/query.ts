@@ -1,12 +1,5 @@
 import {pool} from "./db.js";
 
-export async function getAllUsers(){
-    const query = `Select * from Users`;
-    const {rows} = await pool.query(query);
-    console.log(rows)
-}
-
-
 export async function getUserId(name:string):Promise<number|null> {
     const query = `SELECT user_id FROM users WHERE username = $1;`
     // const trimmedName = name.trim();
@@ -16,15 +9,15 @@ export async function getUserId(name:string):Promise<number|null> {
     return rows[0].user_id || null
 }
 
-export async function getChats(user:string){
-    const userID = await getUserId(user)
+export async function getChats(userId:number){
     const query = `
-        SELECT DISTINCT ON (m.recipitent_id)
-            m.message,
+        SELECT DISTINCT ON (m.recipient_id)
+            m.encrypted_message as message,
             m.sender_id,
             sender.username AS sender_username,
-            m.recipitent_id,
-            recipient.username AS recipitent_username,
+            m.recipient_id,
+            recipient.username AS recipient_username,
+            sender.profile_picture,
             m.timestamp
         FROM
             messages m
@@ -35,56 +28,56 @@ export async function getChats(user:string){
                 JOIN
             users recipient
             ON
-                m.recipitent_id = recipient.user_id
+                m.recipient_id = recipient.user_id
         WHERE
             m.sender_id = $1
-          AND
-            m.recipitent_id IS NOT NULL
         ORDER BY
-            m.recipitent_id,
+            m.recipient_id,
             m.timestamp DESC
     `;
-    const values = [userID]
-    const {rows} = await pool.query(query,values);
-    return rows
-}
-
-export async function getChatMessages(activeUser:string, chatUser:string){
-    const query = `
-        SELECT 
-            message,
-            timestamp as time,
-            recipient_username as recipient,
-            sender_username as sender
+    const test = `
+        SELECT DISTINCT ON (LEAST(m.sender_id, m.recipient_id), GREATEST(m.sender_id, m.recipient_id))
+            m.encrypted_message as message,
+            m.sender_id,
+            sender.username AS sender_username,
+            m.recipient_id,
+            recipient.username AS recipient_username,
+            recipient.profile_picture,
+            m.timestamp
         FROM 
-            messages m 
-        where 
-            m.sender_username=$1 AND m.recipient_username=$2
-        OR
-            m.sender_username=$2 AND m.recipient_username=$1
-        ORDER BY
-            m.timestamp ASC;
-    `;
-    const values =[activeUser, chatUser]
-    const {rows} = await pool.query(query,values);
+            messages m
+        JOIN 
+            users sender ON m.sender_id = sender.user_id
+        JOIN 
+            users recipient ON m.recipient_id = recipient.user_id
+        WHERE 
+            $1 IN (m.sender_id, m.recipient_id) -- User 2 is part of the conversation
+        ORDER BY 
+            LEAST(m.sender_id, m.recipient_id), -- Group by unique conversation pairs
+            GREATEST(m.sender_id, m.recipient_id), 
+            m.message_id DESC -- Fetch the latest message per conversation
+        ;
+    `
+    const values = [userId]
+    const {rows} = await pool.query(test,values);
     return rows || null;
 }
 
 export async function getChatMessagesByID(activeUser:string, chatUser:string){
     const query = `
         SELECT
-            message,
+            encrypted_message as message,
             timestamp,
-            recipitent_id as "userId",
+            recipient_id as "userId",
             sender_id as "activeUserId"
         FROM
             messages m 
         where 
-            m.sender_id=$1 AND m.recipitent_id=$2
+            m.sender_id=$1 AND m.recipient_id=$2
         OR
-            m.sender_id=$2 AND m.recipitent_id=$1
+            m.sender_id=$2 AND m.recipient_id=$1
         ORDER BY
-            m.timestamp ASC;
+            m.timestamp;
     `;
     const values =[activeUser, chatUser]
     const {rows} = await pool.query(query,values);
