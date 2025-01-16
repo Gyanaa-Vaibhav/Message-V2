@@ -13,23 +13,23 @@ type Props = {
 
 const handleSendMessage = ({messageData, userId, setMessages,setUsersList}:Props) => {
     const { message, from } = messageData;
-    console.log(`Message received from ${from}: ${message}`);
-    console.log(message)
     const timestamp = new Date().toISOString();
     setUsersList((prevChats) => {
-           return prevChats.map((chat) => {
-               console.log('chat.recipient_id',chat.recipient_id,from,chat.recipient_id===Number(from))
-                  return chat.recipient_id === Number(from)
-                       ? {
-                           ...chat,
-                           message: message.message,
-                           timestamp,
-                       }
-                       : chat
-               }
-            )
-        }
-    )
+        const updatedChats = prevChats.map((chat) => {
+            return chat.recipient_id === Number(from)
+                ? {
+                ...chat,
+                    message: message.message,
+                    timestamp,
+                    seen:false,
+                }
+                : chat
+        })
+        return updatedChats.sort(function(x, y){
+            // return new Date(y.timestamp) - new Date(x.timestamp)
+            return y.timestamp.localeCompare(x.timestamp);
+        })
+    })
     if (Number(from) === userId) {
         setMessages((prev) => [...prev, message]);
     }
@@ -62,20 +62,20 @@ const sendMessage = (props: SendMessageParams) => {
         };
 
         setUsersList((prevChats) => {
-                return prevChats.map((chat) => {
-                    console.log(chat)
-                        console.log('chat.recipient_id',chat.recipient_id,userId,chat.recipient_id===userId)
-                        return chat.recipient_id === userId
-                            ? {
-                                ...chat,
-                                message: outGoingMessage,
-                                timestamp,
-                            }
-                            : chat
+            const updatedChats = prevChats.map((chat) => {
+                return chat.recipient_id === userId
+                    ? {
+                        ...chat,
+                        message: message.message,
+                        timestamp,
                     }
-                )
-            }
-        )
+                    : chat
+            })
+            return updatedChats.sort(function(x, y){
+                // return new Date(y.timestamp) - new Date(x.timestamp)
+                return y.timestamp.localeCompare(x.timestamp);
+            })
+        })
         // Emit the message to the server
         socket.emit('message', { message, to: userId });
 

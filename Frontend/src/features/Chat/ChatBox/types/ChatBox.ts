@@ -10,7 +10,8 @@ type Message = {
     message:string,
     activeUserId:number,
     userId:number,
-    timestamp:string
+    timestamp:string,
+    seen?:boolean
 }
 
 type MessageData = {

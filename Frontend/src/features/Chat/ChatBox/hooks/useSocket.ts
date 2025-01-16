@@ -3,6 +3,7 @@ import {io, Socket} from "socket.io-client";
 import {Message, MessageData} from "../types/ChatBox.ts";
 import {handleSendMessage} from "../utils/handelMessage.ts";
 import {User} from "../../ChatLayout/types/ChatLayout.ts";
+import {useUserContext} from "../ChatContext.tsx";
 
 const SOCKET_URL  = import.meta.env.VITE_SERVER_IP
 
@@ -33,8 +34,9 @@ export function useSocketInstance(){
     return socket
 }
 
-export default function useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList}:Props){
+export default function useSocket({activeUserId,setMessages,setNewMessage}:Props){
     const socket = useSocketInstance()
+    const { userId, setUsersList} = useUserContext();
 
     React.useEffect(()=>{
         // Registering Socket User
@@ -76,7 +78,7 @@ export default function useSocket({activeUserId,userId,setMessages,setNewMessage
         return () => {
             socket.off('sendMessage', handleIncomingMessage);
         };
-    }, [setMessages, setNewMessage, socket, userId]);
+    }, [setMessages, setNewMessage, setUsersList, socket, userId]);
 
     return socket
 }

@@ -2,6 +2,7 @@
 import {Dispatch, SetStateAction} from "react";
 
 type User = {
+    seen: boolean|undefined;
     name: string;
     message: string;
     recipient_username:string,
