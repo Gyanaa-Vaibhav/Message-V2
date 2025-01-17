@@ -21,7 +21,7 @@ const handleSendMessage = ({messageData, userId, setMessages,setUsersList}:Props
                 ...chat,
                     message: message.message,
                     timestamp,
-                    seen:false,
+                    unread_count: Number(chat.unread_count) + 1,
                 }
                 : chat
         })
@@ -45,13 +45,11 @@ type SendMessageParams = {
     textareaRef:React.RefObject<HTMLTextAreaElement>;
     userId:number;
     activeUserId:number;
-    setNewMessage:React.Dispatch<React.SetStateAction<boolean>>;
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 const sendMessage = (props: SendMessageParams) => {
-    const {socket, outGoingMessage, setMessages, setOutGoingMessage,textareaRef,activeUserId,userId,setNewMessage,setUsersList} = props
-    console.log(activeUserId,userId)
+    const {socket, outGoingMessage, setMessages, setOutGoingMessage,textareaRef,activeUserId,userId,setUsersList} = props
     if (socket && outGoingMessage) {
         const timestamp = new Date().toISOString();
         const message: Message = {
@@ -84,7 +82,6 @@ const sendMessage = (props: SendMessageParams) => {
 
         // Clear the outgoing message input field
         setOutGoingMessage('');
-        setNewMessage(true);
         if(textareaRef.current) textareaRef.current.style.height = '1.5em';
     }
 };
@@ -92,8 +89,12 @@ const sendMessage = (props: SendMessageParams) => {
 type HandleInputChange = {
     event:React.ChangeEvent<HTMLTextAreaElement>,
     setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>
+    socket: Socket | null;
+    userId:number;
+    isUserTyping:boolean
 }
-const handleInputChange = ({event,setOutGoingMessage}:HandleInputChange) => {
+
+const handleInputChange = ({event,setOutGoingMessage,socket,userId,isUserTyping}:HandleInputChange) => {
     const textarea = event.target;
     setOutGoingMessage(textarea.value);
 
@@ -104,6 +105,34 @@ const handleInputChange = ({event,setOutGoingMessage}:HandleInputChange) => {
         textarea.style.height = 'auto';
         textarea.style.height = `${Math.min(textarea.scrollHeight, 4 * 1.5 * parseFloat(getComputedStyle(textarea).fontSize))}px`;
     }
+    handelTypingIndicator({socket,userId,isUserTyping})
 };
+
+type HandelTypingIndicator = {
+    socket: Socket | null;
+    userId:number;
+    isUserTyping:boolean,
+}
+
+const typingTimeouts: { [key: number]: NodeJS.Timeout | null } = {};
+
+function handelTypingIndicator({ socket, userId, isUserTyping }: HandelTypingIndicator) {
+    // Clear the previous timeout if it exists
+    if (typingTimeouts[userId]) {
+        clearTimeout(typingTimeouts[userId]);
+        typingTimeouts[userId] = null;
+    }
+
+    if (!isUserTyping) {
+        // Emit "typing" event
+        socket?.emit('typing', { to: userId });
+
+        // Set a new timeout to emit "typingOff" after 2500ms
+        typingTimeouts[userId] = setTimeout(() => {
+            socket?.emit('typingOff', { to: userId });
+            typingTimeouts[userId] = null; // Clear the timeout reference
+        }, 2500);
+    }
+}
 
 export {handleSendMessage,sendMessage,handleInputChange}

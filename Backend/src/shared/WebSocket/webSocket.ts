@@ -1,7 +1,7 @@
 // websocket.ts
 import { Server as SocketIOServer } from 'socket.io';
-import {getChatMessagesByID} from "../DataBase/query.js";
-import {addToChats} from "../DataBase/addQueries/addtoChat.js";
+import handleSocketMessages from "./handleSocketMessages.js";
+import handelSocketTyping from "./handelSocketTyping.js";
 
 type MessageObject = {
     message:string,
@@ -22,34 +22,16 @@ export default function webSocket(io: SocketIOServer): void {
         console.log(`New client connected: ${socket.id}`);
 
         socket.on('register', (userId: string) => {
+            // Storing the socket ID in a map for further use to send message and typing indicator.
             userMap[userId] = socket.id;
             console.log(`User ${userId} registered with socket ID ${socket.id}`);
         });
 
-        socket.on('message', async ({message,to}:MessageProp) => {
-            const from = Object.keys(userMap).find((key) => userMap[key] === socket.id);
+        // Message Handler
+        handleSocketMessages({socket,io,userMap})
 
-            if (!from) {
-                console.error('Sender not found in userMap');
-            }
-
-            const recipientSocketId = userMap[to];
-            if (recipientSocketId) {
-                io.to(recipientSocketId).emit('sendMessage', { message, from });
-            } else {
-                const msg = {message: message.message,userId:message.userId,activeUserId:message.activeUserId,timestamp:message.timestamp}
-                // console.log("Message Object",msg)
-                // await addToChats(msg)
-                console.log(`User ${to} is offline. Message saved to the database.`);
-            }
-        });
-
-        socket.on('getMessage', async ({userId,activeUserId})=>{
-            if(userId && activeUserId){
-                const messages = await getChatMessagesByID(activeUserId,userId)
-                socket.emit(`userChats`,messages)
-            }
-        })
+        // Typing Handler
+        handelSocketTyping({socket,io,userMap})
 
         socket.on('disconnect', () => {
             console.log(`Disconnected: ${socket.id}`);

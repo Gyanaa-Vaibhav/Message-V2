@@ -1,6 +1,12 @@
+/**
+ * useSocket
+ *
+ * A global Socket function to initialize and use socket listeners
+ * @function {useSocketInstance} Initializes the socket object and returns it
+ */
 import React from "react";
 import {io, Socket} from "socket.io-client";
-import {Message, MessageData} from "../types/ChatBox.ts";
+import {Message, MessageData, TypingFormat} from "../types/ChatBox.ts";
 import {handleSendMessage} from "../utils/handelMessage.ts";
 import {User} from "../../ChatLayout/types/ChatLayout.ts";
 import {useUserContext} from "../ChatContext.tsx";
@@ -13,6 +19,8 @@ type Props = {
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
     setNewMessage: React.Dispatch<React.SetStateAction<boolean>>,
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
+    setIsUserTyping: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsUserTypingId: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export function useSocketInstance(){
@@ -34,7 +42,7 @@ export function useSocketInstance(){
     return socket
 }
 
-export default function useSocket({activeUserId,setMessages,setNewMessage}:Props){
+export default function useSocket({activeUserId,setMessages,setNewMessage,setIsUserTyping,setIsUserTypingId}:Props){
     const socket = useSocketInstance()
     const { userId, setUsersList} = useUserContext();
 
@@ -46,30 +54,31 @@ export default function useSocket({activeUserId,setMessages,setNewMessage}:Props
     },[activeUserId, socket])
 
     React.useEffect(() => {
-        // Fetching User Chats
-        if (socket){
-            console.log("Selected User",userId,"Logged In User",activeUserId)
+        if(!socket) return;
 
-            const handleUserChats = (message: Message[]) => {
-                setMessages(message);
-            };
+        // Fetching User Chats List
+        const handleUserChats = (message: Message[]) => {
+            setMessages(message);
+        };
 
-            socket.on(`userChats`,handleUserChats)
+        socket.on(`userChats`,handleUserChats)
 
-            socket.emit('getMessage', {userId,activeUserId})
+        socket.emit('getMessage', {userId,activeUserId})
 
-            return()=>{
-                socket.off(`userChats`,handleUserChats)
-            }
+        return()=>{
+            socket.off(`userChats`,handleUserChats)
         }
     }, [userId, socket, activeUserId, setMessages]);
 
     React.useEffect(() => {
         if (!socket) return;
 
+        // Handling messages
         const handleIncomingMessage = (messageData: MessageData) => {
-            console.log("From Socket", messageData);
-            setNewMessage(true)
+            if(Number(messageData.from) === userId){
+                setNewMessage(true)
+            }
+            setIsUserTyping(false);
             handleSendMessage({ messageData, userId, setMessages, setUsersList});
         };
 
@@ -78,7 +87,33 @@ export default function useSocket({activeUserId,setMessages,setNewMessage}:Props
         return () => {
             socket.off('sendMessage', handleIncomingMessage);
         };
-    }, [setMessages, setNewMessage, setUsersList, socket, userId]);
+    }, [setIsUserTyping, setMessages, setNewMessage, setUsersList, socket, userId]);
+
+
+    React.useEffect(() => {
+            if (!socket) return;
+
+            const handleTypingUser = (user: TypingFormat) => {
+                if(Number(user.from) === userId){
+                    setIsUserTypingId(Number(user.from));
+                    setIsUserTyping(true);
+                }
+            };
+
+            const handleTypingUserOff = () => {
+                console.log('Off')
+                setIsUserTypingId(NaN);
+                setIsUserTyping(false);
+            };
+
+            socket.on('userTypingOn', handleTypingUser);
+            socket.on('userTypingOff', handleTypingUserOff);
+
+            return () => {
+                socket.off('userTypingOn', handleTypingUser);
+                socket.off('userTypingOff', handleTypingUserOff);
+            };
+        }, [setIsUserTyping, setIsUserTypingId, socket, userId]);
 
     return socket
 }

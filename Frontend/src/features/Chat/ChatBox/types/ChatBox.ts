@@ -7,6 +7,7 @@ type Props = {
 };
 
 type Message = {
+    system: boolean;
     message:string,
     activeUserId:number,
     userId:number,
@@ -19,4 +20,9 @@ type MessageData = {
     from: number;
 };
 
-export type {Props,Message,MessageData}
+type TypingFormat = {
+    typing:boolean,
+    from:number,
+}
+
+export type {Props,Message,MessageData,TypingFormat}

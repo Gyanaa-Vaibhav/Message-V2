@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser";
 import {Server} from "socket.io";
 import * as http from "node:http";
 import rateLimiter from "./shared/utils/rateLimiter.js";
-import webSocket from "./shared/utils/webSocket.js";
+import webSocket from "./shared/WebSocket/webSocket.js";
 
 
 import loginRouter from "./features/Login/routes/LoginRoute.js";
@@ -16,7 +16,7 @@ import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
 import {decode, sign, verifyToken} from "./shared/utils/jwt.js";
 import {getChats} from "./shared/DataBase/query.js";
 import {getUser, getUserList} from "./shared/DataBase/dbExports.js";
-import {getChatUsers, getChatUsersLastMessage} from "./shared/DataBase/getQueries/getChatUsers.js";
+import {getChatUsers, getChatUsersLastMessage, getUnreadCounts} from "./shared/DataBase/getQueries/getChatUsers.js";
 
 
 
@@ -83,6 +83,41 @@ app.get('/usersChat', async (req,res)=>{
     }))
     res.json({success:true,users:Data})
 })
+
+app.get('/usersChatT', async (req, res) => {
+    const user = req.body.user || 'alice';
+
+    try {
+        // Fetch all users the current user has chatted with
+        const users = await getChatUsers(user.user_id);
+
+        // Fetch unread counts
+        const unreadCounts = await getUnreadCounts(user.user_id);
+
+        // Create a map of unread counts for easy lookup
+        const unreadMap = unreadCounts.reduce((map, row) => {
+            map[row.sender_id] = row.unread_count;
+            return map;
+        }, {});
+
+        // Fetch the last message for each user and append unread counts
+        const Data = await Promise.all(
+            users?.map(async (m) => {
+                const [des] = await getChatUsersLastMessage(user.user_id, m.recipient_id);
+
+                // Append the unread count to the user data
+                des.unread_count = unreadMap[m.recipient_id] || 0;
+                return des;
+            })
+        );
+
+        res.json({ success: true, users: Data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 
 app.post('/users', async (req,res)=>{
     const username = req.body.search;

@@ -63,7 +63,7 @@ export async function getChats(userId:number){
     return rows || null;
 }
 
-export async function getChatMessagesByID(activeUser:string, chatUser:string){
+export async function getChatMessagesByID(activeUser:number, chatUser:number){
     const query = `
         SELECT
             encrypted_message as message,

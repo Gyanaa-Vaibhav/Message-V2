@@ -9,14 +9,11 @@ import useSocket from "../hooks/useSocket.ts";
 import {handleInputChange, sendMessage} from "../utils/handelMessage.ts";
 import decryptPrivateKey from "../../../../shared/decryptPrivateKey.ts";
 import {useUserContext} from "../ChatContext.tsx";
+import scrollToBottom from "../utils/scrollToBottom.ts";
 
 const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
-    const {userId,user,setUsersList} = useUserContext()
-    const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
-    const [messages,setMessages] = React.useState<Message[]>([]);
-    const [newMessage, setNewMessage] = React.useState<boolean>(false);
-    const [messagePopUp,setMessagePopUp] = React.useState<boolean>(false);
-    const [isAtBottom, setIsAtBottom] = React.useState(true);
+
+    // Key Verifier
     const key = localStorage.getItem('privateKey')
     try{
         if(key && userEmail) decryptPrivateKey(key,userEmail)
@@ -26,31 +23,42 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
         console.log(e)
     }
 
-    const socket = useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList});
+    // Global Context
+    const {userId,user,setUsersList,messages,setMessages} = useUserContext()
 
+    // Custom States
+    const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
+    // const [messages,setMessages] = React.useState<Message[]>([]);
+    const [newMessage, setNewMessage] = React.useState<boolean>(false);
+    const [messagePopUp,setMessagePopUp] = React.useState<boolean>(false);
+    const [isAtBottom, setIsAtBottom] = React.useState<boolean>(true);
+    const [isUserTyping, setIsUserTyping] = React.useState<boolean>(false);
+    const [isUserTypingId, setIsUserTypingId] = React.useState<number>(NaN);
+
+    // Socket Initialization
+    const socket = useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList,setIsUserTyping,setIsUserTypingId});
+
+    // Refs
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);
     const firstLoad = useRef<boolean>(false);
-    const messageObject = {socket, outGoingMessage, setMessages, setOutGoingMessage, activeUser,textareaRef,activeUserId,userId,setNewMessage,setUsersList}
 
-    const scrollToBottom = React.useCallback(() => {
-        if(!firstLoad.current){
-            if (messagesEndRef.current) {
-                messagesEndRef.current.scrollIntoView({behavior: 'instant'});
-            }
-            firstLoad.current=true;
-        }else{
-            if(!isAtBottom){
-                if (messagesEndRef.current) {
-                    messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
-                }
-            }
+    // Custom Objects
+    const messageObject = {socket, outGoingMessage, setMessages, setOutGoingMessage, activeUser,textareaRef,activeUserId,userId,setUsersList}
+    const handelChangeObject = {setOutGoingMessage,socket,userId,isUserTyping}
+    const scrollToBottomObject = React.useMemo(() => {
+        return { isAtBottom, firstLoad, messagesEndRef };
+    }, [isAtBottom, firstLoad, messagesEndRef]);
+
+
+    React.useEffect(() => {
+        if(isAtBottom){
             if (messagesEndRef.current) {
                 messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
             }
         }
-    },[isAtBottom]);
+    }, [isAtBottom, isUserTyping, isUserTypingId]);
 
     const handleScroll = () => {
         if(!messagesContainerRef.current) return;
@@ -85,11 +93,13 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
 
     React.useEffect(()=>{
         if(isAtBottom){
-            scrollToBottom()
-        }else{
-            // setNewMessage(true)
+            scrollToBottom(scrollToBottomObject)
         }
-    },[isAtBottom, messages, scrollToBottom])
+    },[isAtBottom, messages, scrollToBottomObject])
+
+    React.useCallback(()=> {
+        scrollToBottom(scrollToBottomObject)
+    },[scrollToBottomObject])
 
     const m = <>
         <div className='message message-bubble'>
@@ -173,7 +183,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                     {messages.map((m:Message,i:number)=> {
                         const time = new Date(m.timestamp).toLocaleTimeString()
                         return(
-                            <div tabIndex={0} key={i} className={`message ${(m.activeUserId) === activeUserId ? 'self' : ''}`}>
+                            <div tabIndex={0} key={i} className={`message${(m.activeUserId) === activeUserId ? ' self' : ''}`}>
                                 <div className='message-bubble'>
                                     <div className='message-user-info'>
                                         <p className='time'>{time.slice(0,-3)}</p>
@@ -183,11 +193,20 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                             </div>
                         )
                     })}
+                    {isUserTyping && isUserTypingId === userId &&
+                        <div className="typing-bubble">
+                            <div className="typing-indicator">
+                                <span className="dot"></span>
+                                <span className="dot"></span>
+                                <span className="dot"></span>
+                            </div>
+                        </div>
+                    }
                     <div ref={messagesEndRef} ></div>
                 </div>
                 {messagePopUp &&
                     <div className='down-arrow'>
-                        <div className="subtle-down-arrow" onClick={() => scrollToBottom()}>
+                        <div className="subtle-down-arrow" onClick={() => scrollToBottom(scrollToBottomObject)}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -212,7 +231,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                             value={outGoingMessage}
                             rows={1}
                             autoComplete='off'
-                            onChange={(event)=>handleInputChange({event, setOutGoingMessage})}
+                            onChange={(event)=>handleInputChange({event,...handelChangeObject})}
                             onKeyDown={handleKeyDown}
                         />
                         <img

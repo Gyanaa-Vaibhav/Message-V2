@@ -9,6 +9,7 @@ type User = {
     timestamp: string;
     recipient_id:number;
     profile_picture:string,
+    unread_count:number,
 };
 
 

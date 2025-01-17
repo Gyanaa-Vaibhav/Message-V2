@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import {User} from "../ChatLayout/types/ChatLayout.ts";
+import {Message} from "./types/ChatBox.ts";
 
 // Define the shape of the context
 interface UserContextType {
@@ -11,6 +12,8 @@ interface UserContextType {
     setUserId: React.Dispatch<React.SetStateAction<number>>;
     usersList: User[];
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    messages:Message[]
 }
 
 // Create the context
@@ -29,6 +32,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [user, setUser] = useState<string>(''); // To share the userName for the Nav bar
     const [userId, setUserId] = useState<number>(NaN);
     const [usersList, setUsersList] = useState<User[]>([]);
+    const [messages,setMessages] = React.useState<Message[]>([]);
 
     return (
         <UserContext.Provider
@@ -41,6 +45,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 setUserId,
                 usersList,
                 setUsersList,
+                messages,
+                setMessages,
             }}
         >
             {children}

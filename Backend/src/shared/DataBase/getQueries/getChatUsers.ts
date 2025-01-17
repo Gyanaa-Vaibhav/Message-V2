@@ -49,3 +49,20 @@ export async function getChatUsersLastMessage(activeUserId:number,userId:number)
     const {rows} = await pool.query(query,values);
     return rows || null
 }
+
+export async function getUnreadCounts(userId: number) {
+    const query = `
+        SELECT
+            sender_id,
+            COUNT(*) AS unread_count
+        FROM
+            messages
+        WHERE
+            recipient_id = $1 AND seen = FALSE
+        GROUP BY
+            sender_id;
+    `;
+    const values = [userId];
+    const { rows } = await pool.query(query, values);
+    return rows || [];
+}
