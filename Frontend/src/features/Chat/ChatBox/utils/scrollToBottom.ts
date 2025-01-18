@@ -4,20 +4,15 @@ type Props = {
     isAtBottom: boolean
 }
 const scrollToBottom = ({firstLoad, messagesEndRef, isAtBottom}:Props) => {
+    if(!messagesEndRef.current) return;
     if (!firstLoad.current) {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({behavior: 'instant'});
-        }
+        messagesEndRef.current.scrollIntoView({behavior: 'instant'});
         firstLoad.current = true;
     } else {
         if (!isAtBottom) {
-            if (messagesEndRef.current) {
-                messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
-            }
-        }
-        if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
         }
+        messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
     }
 }
 

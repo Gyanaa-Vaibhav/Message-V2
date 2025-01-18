@@ -1,5 +1,5 @@
-import {getChatMessagesByID} from "../DataBase/query.js";
 import {DefaultEventsMap, Server as SocketIOServer, Socket} from "socket.io";
+import {getChatMessagesByID} from "../DataBase/dbExports.js";
 
 type Props = {
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;

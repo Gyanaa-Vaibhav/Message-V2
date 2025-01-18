@@ -1,5 +1,8 @@
 import '../styles/ChatBox.css';
 import React, {useRef} from "react";
+import double_tick_icon from '/svg/double_tick_icon.svg'
+import green_tick_icon from '/svg/double_tick_icon_green.svg'
+import single_tick_icon from '/svg/single_tick_icon.svg'
 
 import StarAnimation from "../../../LandingPage/components/StarAnimation.tsx";
 import {Props, Message} from "../types/ChatBox.ts";
@@ -80,7 +83,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
         if(firstLoad.current) firstLoad.current=false;
         if(!textareaRef.current) return
         textareaRef.current.focus();
-    },[userId])
+    },[userId,messages])
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -183,11 +186,20 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                     {messages.map((m:Message,i:number)=> {
                         const time = new Date(m.timestamp).toLocaleTimeString()
                         return(
-                            <div tabIndex={0} key={i} className={`message${(m.activeUserId) === activeUserId ? ' self' : ''}`}>
+                            <div tabIndex={0} key={i} className={`message${(m.activeUserId) === activeUserId ? ' self' : ''}${m?.system ? ' system' : ''}`}>
                                 <div className='message-bubble'>
                                     <div className='message-user-info'>
-                                        <p className='time'>{time.slice(0,-3)}</p>
                                         <p className='user-message'>{m.message}</p>
+                                        {m.activeUserId === activeUserId && (
+                                            m.system
+                                                ? null
+                                                : m.seen === null
+                                                    ? <img src={single_tick_icon} alt="sent" />
+                                                    : m.seen
+                                                        ? <img src={green_tick_icon} alt="delivered" />
+                                                        : <img src={double_tick_icon} alt="received" />
+                                        )}
+                                        <p className='time'>{time.slice(0,-3)}</p>
                                     </div>
                                 </div>
                             </div>

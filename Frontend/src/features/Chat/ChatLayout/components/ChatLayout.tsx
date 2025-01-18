@@ -13,7 +13,10 @@ const ChatLayout = () => {
     // Custom States
     const [searching,setSearching] = React.useState<boolean>(false);
     const [searchData,setSearchData] = React.useState<UserSearch[]>([]);
-    // const [userChat, setUserChat] = React.useState<JSX.Element[]>([]);
+    const [firstSearch,setFirstSearch] = React.useState<boolean>(false);
+    React.useEffect(()=>{
+        if(!firstSearch) if(searching) setFirstSearch(true)
+    },[firstSearch, searching])
 
     React.useEffect(()=>{
         const token = localStorage.getItem('accessToken')
@@ -26,184 +29,119 @@ const ChatLayout = () => {
         })
             .then(res=>res.json())
             .then(data => {
-                console.log(data.users)
                 setUsersList(data.users)
             })
     },[setUsersList])
 
     React.useEffect(() => {
+        const userExists = usersList.some((m) => m.message === undefined);
         // Makes the user_count : 0 if the message is received by current user
+        if(!userExists) return
+        console.log('running')
         setUsersList((prev) => {
             const data: User[] = [];
             let hasChanged = false;
 
             prev.forEach((m) => {
                 if (m.message === undefined) return;
-
                 if (m.recipient_id === userId && m.unread_count > 0) {
-                    data.push({ ...m, unread_count: 0 }); // Reset unread_count for active user
-                    hasChanged = true; // Mark that a change occurred
+                    // Reset unread_count for active user
+                    data.push({ ...m, unread_count: 0 });
+                    // Mark that a change occurred
+                    hasChanged = true;
                 } else {
-                    data.push(m); // Keep other users unchanged
+                    // Keep other users unchanged
+                    data.push(m);
                 }
             });
 
             // Only update the state if changes were made
             return hasChanged ? data : prev;
         });
-    }, [usersList, userId, setUsersList, setMessages]);
+    },[usersList, setUsersList, userId, firstSearch])
 
+    React.useEffect(() => {
+        if (!userId || usersList.length === 0) return; // Ensure valid userId and non-empty usersList
 
-    const handleUserClick = React.useCallback((username: string,id:number) => {
-        if(user === username) return;
+        // Find the clicked user
+        const clickedUser = usersList.find((user) => user.recipient_id === userId);
+        if (!clickedUser) return
 
+        // Get unread messages count
+        const unreadCount = clickedUser.unread_count || 0;
+        // Process unread messages only if unreadCount > 0
         setMessages((prevMessages) => {
-            const activeUser = usersList.find((user) => user.recipient_id === id);
-            console.log(activeUser)
-            const unreadCount = activeUser?.unread_count || 0;
-            console.log(unreadCount)
+            // to prevent from rendering to everyone
+            const userExists = prevMessages.some((m) => m.userId === userId);
+            // without this the loop evaluates the old messages form old user
+            for (let i = 0; i <= 1; i++) {
+                if (prevMessages.length > 0 && !userExists) continue;
+                // if unread is more than 1 because when the message is sent it is counted to 1 so to prevent it start from 1
+                if (unreadCount > 1) {
+                    const splitIndex = prevMessages.length - unreadCount;
+                    const remainingMessages = prevMessages.slice(0, splitIndex);
+                    const unreadMessages = prevMessages.slice(splitIndex);
+                    const systemMessage = {
+                        timestamp:'',
+                        userId: -100,
+                        activeUserId:-100,
+                        message: `${unreadCount} Unread Messages`,
+                        system: true,
+                        seen:true,
+                    };
 
-            if (unreadCount > 0) {
-                const splitIndex = prevMessages.length - unreadCount;
-
-                const remainingMessages = prevMessages.slice(0, splitIndex);
-                console.log("Old messages",remainingMessages)
-                const unreadMessages = prevMessages.slice(splitIndex);
-                console.log("Unread Messages",unreadMessages)
-
-                const systemMessage = {
-                    message: "Unread Messages Begin Here",
-                    system: true,
-                };
-
-                return [...remainingMessages, systemMessage, ...unreadMessages];
+                    return [...remainingMessages, systemMessage, ...unreadMessages];
+                }
             }
-
-            return prevMessages; // No unread messages to process
+            return prevMessages;
         });
 
-        setTimeout(()=>{
-            setUsersList((prev)=>{
-                const data:User[] = [];
-                prev.map(m=>{
-                    if (m.message === undefined) return;
-                    if(m.recipient_id === id){
-                        data.push({...m,unread_count:0})
-                        return;
-                    }
-                    return data.push(m);
-                })
-                return data
-            })
-        },1000)
-        // setUsersList((prev)=>{
-        //     const data:User[] = [];
-        //     prev.map(m=>{
-        //         if (m.message === undefined) return;
-        //         if(m.recipient_id === id){
-        //             data.push({...m,unread_count:0})
-        //             return;
-        //         }
-        //         return data.push(m);
-        //     })
-        //     return data
-        // })
+        // Reset unread_count only if necessary
+        const updatedUsersList = usersList.map((user) =>
+            user.recipient_id === userId && user.unread_count > 0
+                ? { ...user, unread_count: 0 }
+                : user
+        );
+
+        // Compare the updated usersList with the current one to avoid unnecessary updates
+        if (JSON.stringify(usersList) !== JSON.stringify(updatedUsersList)) {
+            setUsersList(updatedUsersList);
+        }
+    }, [messages]);
+
+    const handleUserClick = React.useCallback((username: string, id: number) => {
+        if (user === username) return;
 
         setUser(username)
         setUserId(id)
 
-    },[user, setUsersList, setUser, setUserId]);
+    },[user, setUser, setUserId]);
 
     function handelUserAdd(username: string,id:number){
         if(searching) {
             const userExists = usersList.some(m => m.recipient_id === id);
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
+
             setUsersList(prev=> {
                 if (userExists) return [...prev]
-                return [...prev, {recipient_username: username, recipient_id: id}]
+                return [
+                    {
+                        recipient_username: username,
+                        recipient_id: id,
+                        timestamp:new Date().toISOString(),
+                        message:'Start A new conservation',
+                        profile_picture:'',
+                        unread_count:0,
+                        seen:undefined,
+                        name:'',
+                    }, ...prev]
             })
         }
+        setUser(username)
+        setUserId(id)
         setSearchData([]);
         setSearching(false);
     }
 
-    const searchList = searchData.map(m=>{
-        return(
-            <>
-                <div
-                    key={m.username}
-                    onClick={()=> handelUserAdd(m.username,m.user_id)}
-                    className={'user-chat-search'}
-                >
-                    <div className='profile-image'>
-                        <img src={Account_img} alt="U"/>
-                    </div>
-                    <div className='user-details'>
-                        <div className='user-name'>
-                            <h4>{m.username}</h4>
-                        </div>
-                    </div>
-                </div>
-            </>
-        )
-    })
-
-    // React.useEffect(()=>{
-    //     const userChats:JSX.Element[] = usersList.map(m=> {
-    //         const date = new Date(m.timestamp)
-    //         const hours = String(date.getHours()).padStart(2, '0');
-    //         const minutes = String(date.getMinutes()).padStart(2, '0');
-    //         const time = `${hours}:${minutes}`;
-    //
-    //         return(
-    //             <div
-    //                 key={m.name}
-    //                 onClick={()=> {
-    //                     handleUserClick(m.recipient_username,m.recipient_id)
-    //                 }}
-    //                 className={`user-chat${userId === m.recipient_id ? ' selected' : ''}${isNaN(new Date(date).getTime()) ? ' new-user-chat' : ''}`
-    //                 }
-    //             >
-    //                 <div className='profile-image'>
-    //                     <img src={m.profile_picture ? m.profile_picture :Account_img} alt="User Polfile Image"/>
-    //                 </div>
-    //                 <div className='user-details'>
-    //                     <div className='user-name'>
-    //                         <h4>{m.recipient_username}</h4>
-    //                         <p id={Number(m.unread_count) > 0 ? 'unread-time' : ''}>{isNaN(new Date(date).getTime()) ? '' :time}</p>
-    //                     </div>
-    //                     <div className="chat-box-message-container">
-    //                         <p className="user-chat-last-message">{m.message}</p>
-    //                         {Number(m.unread_count) > 0 && userId !== m.recipient_id && (
-    //                             <div className="chat-box-new-message-indicator">
-    //                                 <div className="indicator-dot">
-    //                                     <svg
-    //                                         width="15px"
-    //                                         height="15px"
-    //                                         viewBox="-2.88 -2.88 21.76 21.76"
-    //                                         xmlns="http://www.w3.org/2000/svg"
-    //                                         fill="#00a884"
-    //                                         className="bi bi-circle-fill"
-    //                                         stroke="#00a884"
-    //                                     >
-    //                                         <circle cx="8" cy="8" r="8"></circle>
-    //                                     </svg>
-    //                                     {Number(m.unread_count) > 0 && (
-    //                                         <span className={`message-count ${Number(m.unread_count) <= 9 ? 'l_9' : ''}`}>{Number(m.unread_count) >= 10 ? '9+' : Number(m.unread_count)}</span>
-    //                                     )}
-    //                                 </div>
-    //                             </div>
-    //                         )}
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         )
-    //     })
-    //
-    //     setUserChat(userChats)
-    //
-    // }, [handleUserClick,userId, usersList])
 
     return (
         <>
@@ -212,7 +150,7 @@ const ChatLayout = () => {
                 {!searching
                     ?
                     <>
-                        <div className='user-chat'>
+                        <div key={'AI'} className='user-chat'>
                             <div className='profile-image'>
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M160-360q-50 0-85-35t-35-85q0-50 35-85t85-35v-80q0-33 23.5-56.5T240-760h120q0-50 35-85t85-35q50 0 85 35t35 85h120q33 0 56.5 23.5T800-680v80q50 0 85 35t35 85q0 50-35 85t-85 35v160q0 33-23.5 56.5T720-120H240q-33 0-56.5-23.5T160-200v-160Zm200-80q25 0 42.5-17.5T420-500q0-25-17.5-42.5T360-560q-25 0-42.5 17.5T300-500q0 25 17.5 42.5T360-440Zm240 0q25 0 42.5-17.5T660-500q0-25-17.5-42.5T600-560q-25 0-42.5 17.5T540-500q0 25 17.5 42.5T600-440ZM320-280h320v-80H320v80Zm-80 80h480v-480H240v480Zm240-240Z"/></svg>
                             </div>
@@ -232,7 +170,7 @@ const ChatLayout = () => {
 
                             return(
                                 <div
-                                    key={m.name}
+                                    key={`${m.recipient_id}-${m.timestamp}`}
                                     onClick={()=> {
                                         handleUserClick(m.recipient_username,m.recipient_id)
                                     }}
@@ -276,7 +214,24 @@ const ChatLayout = () => {
                         })
                         }
                     </>
-                    : searchList}
+                    : searchData.map(m=>(
+                            <div
+                                key={m.user_id}
+                                onClick={()=> handelUserAdd(m.username,m.user_id)}
+                                className={'user-chat-search'}
+                            >
+                                <div className='profile-image'>
+                                    <img src={Account_img} alt="U"/>
+                                </div>
+                                <div className='user-details'>
+                                    <div className='user-name'>
+                                        <h4>{m.username}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    )
+                }
             </aside>
         </>
     );

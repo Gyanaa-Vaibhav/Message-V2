@@ -7,12 +7,12 @@ type Props = {
 };
 
 type Message = {
-    system: boolean;
+    system?: boolean;
     message:string,
     activeUserId:number,
     userId:number,
     timestamp:string,
-    seen?:boolean
+    seen:boolean|undefined,
 }
 
 type MessageData = {

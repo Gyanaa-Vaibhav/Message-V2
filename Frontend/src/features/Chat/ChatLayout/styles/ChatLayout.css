@@ -106,18 +106,18 @@
     border-top: 1px solid #2a3942;
 }
 
-.new-user-chat{
-    height: 50px;
-}
+/*.new-user-chat{*/
+/*    height: 50px;*/
+/*}*/
 
-.new-user-chat img{
-    height: 33px;
-    min-width: 30px;
-}
+/*.new-user-chat img{*/
+/*    height: 33px;*/
+/*    min-width: 30px;*/
+/*}*/
 
-.new-user-chat .profile-image{
-    width: 50px;
-}
+/*.new-user-chat .profile-image{*/
+/*    width: 50px;*/
+/*}*/
 
 .chat-box-message-container {
     position: relative;

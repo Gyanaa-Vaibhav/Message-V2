@@ -120,7 +120,6 @@
 .message-bubble{
     position: relative;
     display: flex;
-    min-width: 100px;
     width: fit-content;
     border-radius: 10px;
     padding: 0.4rem 0.8rem;
@@ -148,12 +147,41 @@
 
 .message-user-info{
     display: flex;
-    flex-direction: row-reverse;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: 0.25rem;
     align-items: flex-end;
     font-size: 0.875rem;
     font-family: var(--primary-font), serif;
     justify-content: space-between;
+}
+
+.message-user-info img{
+    height: 15px;
+    width: 15px;
+}
+
+.system{
+    min-width: 100%;
+    display: flex;
+}
+
+.system .message-bubble{
+    min-width: 100%;
+    border-radius: 0;
+    align-items: center;
+    background-color: transparent;
+    color: var(--secondary-colour);
+    border-top: 1px solid var(--accent-colour);
+    border-bottom: 1px solid var(--accent-colour);
+    box-sizing: border-box;
+}
+
+.system .message-bubble::after{
+    content: none;
+}
+
+.system .message-bubble .time{
+    display: none;
 }
 
 .message-user-info .time{
