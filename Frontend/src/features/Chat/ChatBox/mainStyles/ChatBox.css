@@ -1,0 +1,80 @@
+/* Styles for ChatBox */
+.chat-box{
+    color: white;
+    display: flex;
+    grid-column: 2 / 3;
+    min-height: 100vh;
+    position: relative;
+    flex-direction: column;
+    overflow: hidden;
+    justify-content: flex-end;
+    flex: 1;
+    background: linear-gradient(to bottom, #1f2c3470, #121b2270);
+}
+
+.chat-container{
+    display: flex;
+    flex: 1;
+    padding: 0 0.5rem;
+    overflow-y: scroll;
+    flex-direction: column;
+    scrollbar-color: rgba(255, 255, 255,0.16) transparent;
+    scrollbar-width: thin;
+}
+
+.chat-container-spacer{
+    height: 100vh;
+}
+
+.user{
+    color: var(--secondary-colour);
+}
+
+.self{
+    margin-left: auto;
+}
+
+.user-profile{
+    top: 0;
+    gap: 0.75rem;
+    border-bottom: 2px solid #8696A0;
+    display: flex;
+    position: sticky;
+    padding: 0.6rem 0.8rem;
+    background-color: var(--background-primary);
+}
+
+.profile-details{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: var(--primary-font), serif;
+}
+
+.profile-name{
+    font-size: 1.25rem;
+}
+
+.profile-status{
+    font-size: 0.75rem;
+}
+
+.user-profile img{
+    height: 30px;
+    width: 30px;
+    padding: 5px;
+    border-radius: 25px;
+    background: linear-gradient(222deg, rgba(79, 102, 118, 0.50) 14.73%, rgba(148, 190, 220, 0.80) 83.68%);
+}
+
+.new-message-indicator {
+    position: absolute;
+    bottom: 56px;
+    left: 5px;
+    margin-left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #25d366;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

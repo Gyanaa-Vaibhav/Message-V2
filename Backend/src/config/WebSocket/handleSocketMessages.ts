@@ -1,5 +1,5 @@
 import {DefaultEventsMap, Server as SocketIOServer, Socket} from "socket.io";
-import {getChatMessagesByID} from "../DataBase/dbExports.js";
+import {getChatMessagesByID, updateMessagesToDelivered, updateMessagesToSeen} from "../DataBase/dbExports.js";
 
 type Props = {
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
@@ -21,6 +21,10 @@ type MessageProp = {
 
 export default function handleSocketMessages({socket, io, userMap}:Props){
 
+    socket.on('deliverMessages',async (activeUserId)=>{
+        await updateMessagesToDelivered(activeUserId)
+    })
+
     socket.on('message', async ({message,to}:MessageProp) => {
         // Getting the sender ID to differentiate indicator in the frontend
         const from = Object.keys(userMap).find((key) => userMap[key] === socket.id);
@@ -34,6 +38,7 @@ export default function handleSocketMessages({socket, io, userMap}:Props){
         if (recipientSocketId) {
             // If user active send message
             io.to(recipientSocketId).emit('sendMessage', { message, from });
+            io.emit('delivered');
         } else {
             // If user offline store to database
             const msg = {message: message.message,userId:message.userId,activeUserId:message.activeUserId,timestamp:message.timestamp}
@@ -46,7 +51,10 @@ export default function handleSocketMessages({socket, io, userMap}:Props){
     socket.on('getMessage', async ({userId,activeUserId}:{userId:number,activeUserId:number})=>{
         if(userId && activeUserId){
             const messages = await getChatMessagesByID(activeUserId,userId)
+            console.log(activeUserId,userId)
+            await updateMessagesToSeen(activeUserId,userId)
             socket.emit(`userChats`,messages)
+            socket.broadcast.emit('userSeen',{userId,activeUserId})
         }
     })
 }

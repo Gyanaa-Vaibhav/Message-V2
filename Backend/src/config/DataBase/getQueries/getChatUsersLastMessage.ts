@@ -1,19 +1,5 @@
 import {pool} from "../db.js";
 
-export async function getChatUsers(userId:number){
-    const query = `
-        SELECT DISTINCT ON (recipient_id)
-            recipient_id
-        FROM
-            messages
-        WHERE
-            sender_id = $1
-    `;
-    const values = [userId];
-    const {rows} = await pool.query(query,values);
-    return rows || null;
-}
-
 export async function getChatUsersLastMessage(activeUserId:number,userId:number){
     const query = `
         SELECT
@@ -48,21 +34,4 @@ export async function getChatUsersLastMessage(activeUserId:number,userId:number)
     const values = [activeUserId,userId]
     const {rows} = await pool.query(query,values);
     return rows || null
-}
-
-export async function getUnreadCounts(userId: number) {
-    const query = `
-        SELECT
-            sender_id,
-            COUNT(*) AS unread_count
-        FROM
-            messages
-        WHERE
-            recipient_id = $1 AND seen = FALSE
-        GROUP BY
-            sender_id;
-    `;
-    const values = [userId];
-    const { rows } = await pool.query(query, values);
-    return rows || [];
 }

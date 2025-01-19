@@ -1,19 +1,26 @@
-import ChatBox from "./ChatBox/components/ChatBox.tsx";
-import ChatLayout from "./ChatLayout/components/ChatLayout.tsx";
+import ChatBox from "./ChatBox/mainComponents/ChatBox.tsx";
+import ChatLayout from "./ChatLayout/mainComponents/ChatLayout.tsx";
 import './MainChat.css'
 import React from "react";
 import {UserProvider} from "./ChatBox/ChatContext.tsx";
+import useAuthFetch from "./ChatLayout/utils/useAuthFetch.ts";
 
 export default function MainChat() {
     const [activeUser, setActiveUser] = React.useState<string>('');
     const [activeUserId, setActiveUserId] = React.useState<number>(NaN);
     const [activeUserEmail, setActiveUserEmail] = React.useState<string>('');
 
+    const [success] = useAuthFetch()
+
     React.useEffect(() => {
+        if(!success) {
+            return
+        }
         const token = localStorage.getItem('accessToken');
         if (token) {
             fetch('http://localhost:5172/me', {
                 headers: { Authorization: `Bearer ${token}` },
+                credentials:'include',
             })
                 .then((res) => res.json())
                 .then((data) => {
@@ -25,7 +32,13 @@ export default function MainChat() {
                     }
                 });
         }
-    }, []);
+    }, [success]);
+
+    if(!success){
+        return (
+            <h1>Loading...</h1>
+        )
+    }
 
     return(
         <>

@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, {JwtPayload} from 'jsonwebtoken'
 import {NextFunction, Request, Response} from "express";
 import dotenv from 'dotenv'
 dotenv.config();
@@ -60,6 +60,40 @@ function verifyToken(req: Request, res: Response, next: NextFunction) {
     }
 }
 
+function refreshToken(req:Request,res:Response,next:NextFunction){
+    try {
+        const accessKey = process.env.ACCESS_SECRET;
+        const refreshKey = process.env.REFRESH_SECRET;
+        if (!accessKey || !refreshKey) {
+            res.status(500).json({ success: false, error: 'Server configuration error' });
+            return
+        }
+
+        const token = req.cookies.refreshToken;
+
+        if (!token) {
+            res.status(401).json({ success: false, error: 'Refresh token is missing' });
+            return
+        }
+
+        const user = jwt.verify(token, refreshKey) as JwtPayload;
+        const payload: Payload = {
+            user_id: user.user_id,
+            username: user.username,
+            email: user.email,
+        };
+        const newAccessToken = jwt.sign(payload, accessKey, { expiresIn: '6h' });
+        console.log(newAccessToken)
+        req.body.user = user;
+
+        res.status(200).json({ success: true, accessToken: newAccessToken });
+        return
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 type Payload = {user_id:string,username:string,email:string}
 
 // Generate access token (short-lived)
@@ -76,4 +110,4 @@ export function generateRefreshToken(payload:Payload) {
     return jwt.sign(payload, refreshKey, { expiresIn: '7d' });
 }
 
-export {sign,decode,verifyToken}
+export {sign,decode,verifyToken,refreshToken}

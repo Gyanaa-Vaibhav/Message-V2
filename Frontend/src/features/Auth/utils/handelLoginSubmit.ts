@@ -57,7 +57,29 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
             privateKey,
         };
 
-    console.log(body)
+    function validate(data:any){
+        if(data.password){
+            setErrors({ email: '', password: data.message , keys: ''});
+            setErrorMessage(data.message);
+            setShowError(true);
+        }
+        if(data.email){
+            setErrors({ email: data.message, password: passwordError , keys: ''});
+            setErrorMessage(data.message)
+            setShowError(true);
+        }
+        if(data.key){
+            setErrors({ email: emailError, password: passwordError, keys: data.message})
+            setErrorMessage(data.message)
+            setShowError(true);
+        }
+        if(!passwordRef.current || !emailRef.current) return;
+
+        if(data.decryptedKey){
+            localStorage.setItem('privateKey', data.decryptedKey);
+            console.log(decryptPrivateKey(data.decryptedKey,emailRef.current.value))
+        }
+    }
 
     fetch(url,{
         method: 'POST',
@@ -82,31 +104,10 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
         })
         .then((data) => {
             console.log(data)
+            validate(data)
             if(data.success){
+                localStorage.setItem('accessToken', data.accessToken);
                 window.location.pathname = '/chat'; // Redirect to the home page
-            }
-
-            if(data.password){
-                setErrors({ email: '', password: data.message , keys: ''});
-                setErrorMessage(data.message);
-                setShowError(true);
-            }
-            if(data.email){
-                setErrors({ email: data.message, password: passwordError , keys: ''});
-                setErrorMessage(data.message)
-                setShowError(true);
-            }
-            if(data.key){
-                setErrors({ email: emailError, password: passwordError, keys: data.message})
-                setErrorMessage(data.message)
-                setShowError(true);
-            }
-            if(!passwordRef.current || !emailRef.current) return;
-
-            localStorage.setItem('accessToken', data.accessToken);
-            if(data.decryptedKey){
-                localStorage.setItem('privateKey', data.decryptedKey);
-                console.log(decryptPrivateKey(data.decryptedKey,emailRef.current.value))
             }
         })
         .catch((error) => {

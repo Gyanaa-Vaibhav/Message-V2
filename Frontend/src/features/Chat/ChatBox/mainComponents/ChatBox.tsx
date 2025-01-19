@@ -1,18 +1,18 @@
-import '../styles/ChatBox.css';
+import '../mainStyles/ChatBox.css';
 import React, {useRef} from "react";
-import double_tick_icon from '/svg/double_tick_icon.svg'
-import green_tick_icon from '/svg/double_tick_icon_green.svg'
-import single_tick_icon from '/svg/single_tick_icon.svg'
 
 import StarAnimation from "../../../LandingPage/components/StarAnimation.tsx";
 import {Props, Message} from "../types/ChatBox.ts";
-import send from '/svg/send_icon.svg?url'
 import UploadHandler from "./UploadHandler.tsx";
 import useSocket from "../hooks/useSocket.ts";
 import {handleInputChange, sendMessage} from "../utils/handelMessage.ts";
 import decryptPrivateKey from "../../../../shared/decryptPrivateKey.ts";
 import {useUserContext} from "../ChatContext.tsx";
 import scrollToBottom from "../utils/scrollToBottom.ts";
+import UserTyping from "../components/UserTyping.tsx";
+import MessagePupUp from "../components/MessagePupUp.tsx";
+import MessageInputContainer from "../components/MessageInputContainer.tsx";
+import MessageObject from "../components/MessageObject.tsx";
 
 const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
 
@@ -39,7 +39,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
     const [isUserTypingId, setIsUserTypingId] = React.useState<number>(NaN);
 
     // Socket Initialization
-    const socket = useSocket({activeUserId,userId,setMessages,setNewMessage,setUsersList,setIsUserTyping,setIsUserTypingId});
+    const socket = useSocket({activeUserId,userId,setNewMessage,setUsersList,setIsUserTyping,setIsUserTypingId});
 
     // Refs
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -84,6 +84,13 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
         if(!textareaRef.current) return
         textareaRef.current.focus();
     },[userId,messages])
+
+    React.useEffect(()=>{
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({behavior: 'instant'});
+        }
+        setNewMessage(false);
+    },[userId])
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -169,9 +176,9 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
             <UploadHandler socket={socket}>
 
                 <div className='user-profile'>
-                    <img src="u" alt="p"/>
+                    <img src={user.img} alt="p"/>
                     <div className='profile-details'>
-                        <p className='profile-name'>{user}</p>
+                        <p className='profile-name'>{user.name}</p>
                     </div>
                 </div>
 
@@ -182,77 +189,41 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                     <>
                         {m}
                     </>
-                    <div className='chat-container-spacer'></div>
-                    {messages.map((m:Message,i:number)=> {
-                        const time = new Date(m.timestamp).toLocaleTimeString()
-                        return(
-                            <div tabIndex={0} key={i} className={`message${(m.activeUserId) === activeUserId ? ' self' : ''}${m?.system ? ' system' : ''}`}>
-                                <div className='message-bubble'>
-                                    <div className='message-user-info'>
-                                        <p className='user-message'>{m.message}</p>
-                                        {m.activeUserId === activeUserId && (
-                                            m.system
-                                                ? null
-                                                : m.seen === null
-                                                    ? <img src={single_tick_icon} alt="sent" />
-                                                    : m.seen
-                                                        ? <img src={green_tick_icon} alt="delivered" />
-                                                        : <img src={double_tick_icon} alt="received" />
-                                        )}
-                                        <p className='time'>{time.slice(0,-3)}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
+                    <div className='chat-container-spacer'/>
+
+                    {messages.map((m:Message,i:number)=>
+                            <MessageObject
+                                m={m}
+                                key={i}
+                                activeUserId={activeUserId}
+                            />
+                    )}
+
                     {isUserTyping && isUserTypingId === userId &&
-                        <div className="typing-bubble">
-                            <div className="typing-indicator">
-                                <span className="dot"></span>
-                                <span className="dot"></span>
-                                <span className="dot"></span>
-                            </div>
-                        </div>
+                        <UserTyping/>
                     }
+
                     <div ref={messagesEndRef} ></div>
+
                 </div>
+
                 {messagePopUp &&
-                    <div className='down-arrow'>
-                        <div className="subtle-down-arrow" onClick={() => scrollToBottom(scrollToBottomObject)}>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                                width="24px"
-                                height="24px"
-                            >
-                                <path d="M12 16l-6-6h12z"/>
-                            </svg>
-                        </div>
-                        {newMessage && <span className="new-message-indicator"></span>}
-                    </div>
+                    <MessagePupUp
+                        scrollToBottomObject={scrollToBottomObject}
+                        newMessage={newMessage}
+                    />
                 }
-                <div className='input-container'>
-                    <div className='message-container'>
-                        <label htmlFor="message">Your Message:</label>
-                        <textarea
-                            ref={textareaRef}
-                            name="message"
-                            id="message"
-                            placeholder={'Message Goes here'}
-                            value={outGoingMessage}
-                            rows={1}
-                            autoComplete='off'
-                            onChange={(event)=>handleInputChange({event,...handelChangeObject})}
-                            onKeyDown={handleKeyDown}
-                        />
-                        <img
-                            src={send}
-                            alt="Send Arrow"
-                            onClick={()=>sendMessage(messageObject)}
-                        />
-                    </div>
-                </div>
+
+                <MessageInputContainer
+                    textareaRef={textareaRef}
+                    outGoingMessage={outGoingMessage}
+                    handleInputChange={handleInputChange}
+                    handleKeyDown={handleKeyDown}
+                    sendMessage={sendMessage}
+                    messageObject={messageObject}
+                    handelChangeObject={handelChangeObject}
+                />
+
             </UploadHandler>
         </>
     );

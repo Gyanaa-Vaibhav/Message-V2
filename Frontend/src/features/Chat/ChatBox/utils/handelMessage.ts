@@ -35,7 +35,7 @@ const handleSendMessage = ({messageData, userId, setMessages,setUsersList}:Props
     }
 };
 
-type SendMessageParams = {
+export type SendMessageParams = {
     socket: Socket | null;
     outGoingMessage: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -57,6 +57,7 @@ const sendMessage = (props: SendMessageParams) => {
             activeUserId:activeUserId,
             userId:userId,
             timestamp:timestamp,
+            seen:null
         };
 
         setUsersList((prevChats) => {
@@ -86,7 +87,7 @@ const sendMessage = (props: SendMessageParams) => {
     }
 };
 
-type HandleInputChange = {
+export type HandleInputChange = {
     event:React.ChangeEvent<HTMLTextAreaElement>,
     setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>
     socket: Socket | null;

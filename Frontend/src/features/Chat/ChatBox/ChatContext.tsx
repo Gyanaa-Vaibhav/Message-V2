@@ -6,8 +6,8 @@ import {Message} from "./types/ChatBox.ts";
 interface UserContextType {
     activeUser: string;
     setActiveUser: React.Dispatch<React.SetStateAction<string>>;
-    user: string;
-    setUser: React.Dispatch<React.SetStateAction<string>>;
+    user: { name: string, img: string }
+    setUser: React.Dispatch<React.SetStateAction<{ name: string, img: string }>>;
     userId: number;
     setUserId: React.Dispatch<React.SetStateAction<number>>;
     usersList: User[];
@@ -29,7 +29,7 @@ interface UserProviderProps {
 // Context Provider
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [activeUser, setActiveUser] = useState<string>('');
-    const [user, setUser] = useState<string>(''); // To share the userName for the Nav bar
+    const [user, setUser] = useState<{ name:string,img:string }>({name:'',img:''}); // To share the userName for the Nav bar
     const [userId, setUserId] = useState<number>(NaN);
     const [usersList, setUsersList] = useState<User[]>([]);
     const [messages,setMessages] = React.useState<Message[]>([]);

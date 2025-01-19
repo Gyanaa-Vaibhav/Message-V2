@@ -6,24 +6,27 @@
  */
 import React from "react";
 import {io, Socket} from "socket.io-client";
-import {Message, MessageData, TypingFormat} from "../types/ChatBox.ts";
-import {handleSendMessage} from "../utils/handelMessage.ts";
 import {User} from "../../ChatLayout/types/ChatLayout.ts";
 import {useUserContext} from "../ChatContext.tsx";
+import {
+    useSocketUserChat,
+    useSocketTyping,
+    useSocketIncomingMessages,
+    useSocketReadReceipts
+} from "./socketEvents/defaultSocketFunctionExport.ts";
 
 const SOCKET_URL  = import.meta.env.VITE_SERVER_IP
 
 type Props = {
     activeUserId: number
     userId:number,
-    setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
     setNewMessage: React.Dispatch<React.SetStateAction<boolean>>,
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
     setIsUserTyping: React.Dispatch<React.SetStateAction<boolean>>;
     setIsUserTypingId: React.Dispatch<React.SetStateAction<number>>;
 };
 
-export function useSocketInstance(){
+export function useSocketInstance(activeUserId?:number){
     const [socket,setSocket] = React.useState<Socket | null>(null);
 
     React.useEffect(()=>{
@@ -31,89 +34,40 @@ export function useSocketInstance(){
         setSocket(server);
 
         server.on('connect',() =>{
-            console.log('Connected to WebSocket server');
+            if (activeUserId) {
+                server.emit('register', activeUserId);
+                server.emit('deliverMessages',activeUserId)
+            }
         })
 
         return ()=>{
             server.close()
         }
-    },[])
+    },[activeUserId])
 
     return socket
 }
 
-export default function useSocket({activeUserId,setMessages,setNewMessage,setIsUserTyping,setIsUserTypingId}:Props){
-    const socket = useSocketInstance()
-    const { userId, setUsersList} = useUserContext();
+export default function useSocket(props:Props){
+    const {activeUserId,setNewMessage,setIsUserTyping,setIsUserTypingId} = props
+    const { userId, setUsersList,setMessages} = useUserContext();
 
-    React.useEffect(()=>{
-        // Registering Socket User
-        if (socket && activeUserId) {
-            socket.emit('register', activeUserId);
-        }
-    },[activeUserId, socket])
+    const socket = useSocketInstance(activeUserId)
 
-    React.useEffect(() => {
-        if(!socket) return;
+    // Handel Getting User Chats
+    const userChatObject = {socket,setMessages,userId,activeUserId};
+    useSocketUserChat(userChatObject);
 
-        // Fetching User Chats List
-        const handleUserChats = (message: Message[]) => {
-            setMessages(message);
-        };
+    // Handel Incoming Messages
+    const incomingMessageObject = {socket,userId,setNewMessage,setIsUserTyping,setMessages,setUsersList};
+    useSocketIncomingMessages(incomingMessageObject)
 
-        socket.on(`userChats`,handleUserChats)
+    // Handel Typing Events
+    const typingObject = {socket,setIsUserTypingId,setIsUserTyping,userId};
+    useSocketTyping(typingObject)
 
-        socket.emit('getMessage', {userId,activeUserId})
-
-        return()=>{
-            socket.off(`userChats`,handleUserChats)
-        }
-    }, [userId, socket, activeUserId, setMessages]);
-
-    React.useEffect(() => {
-        if (!socket) return;
-
-        // Handling messages
-        const handleIncomingMessage = (messageData: MessageData) => {
-            if(Number(messageData.from) === userId){
-                setNewMessage(true)
-            }
-            setIsUserTyping(false);
-            handleSendMessage({ messageData, userId, setMessages, setUsersList});
-        };
-
-        socket.on('sendMessage', handleIncomingMessage);
-
-        return () => {
-            socket.off('sendMessage', handleIncomingMessage);
-        };
-    }, [setIsUserTyping, setMessages, setNewMessage, setUsersList, socket, userId]);
-
-
-    React.useEffect(() => {
-            if (!socket) return;
-
-            const handleTypingUser = (user: TypingFormat) => {
-                if(Number(user.from) === userId){
-                    setIsUserTypingId(Number(user.from));
-                    setIsUserTyping(true);
-                }
-            };
-
-            const handleTypingUserOff = () => {
-                console.log('Off')
-                setIsUserTypingId(NaN);
-                setIsUserTyping(false);
-            };
-
-            socket.on('userTypingOn', handleTypingUser);
-            socket.on('userTypingOff', handleTypingUserOff);
-
-            return () => {
-                socket.off('userTypingOn', handleTypingUser);
-                socket.off('userTypingOff', handleTypingUserOff);
-            };
-        }, [setIsUserTyping, setIsUserTypingId, socket, userId]);
+    const readReceiptObject = {socket,setMessages,activeUserId,userId};
+    useSocketReadReceipts(readReceiptObject)
 
     return socket
 }

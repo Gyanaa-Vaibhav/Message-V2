@@ -7,17 +7,14 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import {Server} from "socket.io";
 import * as http from "node:http";
-import rateLimiter from "./shared/utils/rateLimiter.js";
-import webSocket from "./shared/WebSocket/webSocket.js";
+import rateLimiter from "./config/utils/rateLimiter.js";
+import webSocket from "./config/WebSocket/webSocket.js";
 
 
 import loginRouter from "./features/Login/routes/LoginRoute.js";
 import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
-import {decode, sign, verifyToken} from "./shared/utils/jwt.js";
-import {getChats} from "./shared/DataBase/query.js";
-import {getUser, getUserList} from "./shared/DataBase/dbExports.js";
-import {getChatUsers, getChatUsersLastMessage, getUnreadCounts} from "./shared/DataBase/getQueries/getChatUsers.js";
-
+import {decode, refreshToken, sign, verifyToken} from "./config/utils/jwt.js";
+import {getUser, getUserList,getUnreadCounts,getChatUsersLastMessage,getChatUsers} from "./config/DataBase/dbExports.js";
 
 
 dotenv.config();
@@ -61,30 +58,16 @@ app.use(express.static(path.join(homeDir)))
 app.use('/login',loginRouter)
 app.use('/register',RegisterRouter)
 
-app.get('/test',(req, res) => {
-    res.json({success:true,message:'Hello Hi Serve Works'})
-});
+app.get('/refreshToken',refreshToken)
 
 app.use(sign)
-// app.use(decode)
 app.use(verifyToken)
-
 app.get('/me',async (req,res)=>{
     const [user] = await getUser({user_id:req.body.user.user_id})
     res.json({success:true,user})
 })
 
-app.get('/usersChat', async (req,res)=>{
-    const user = req.body.user || 'alice';
-    const users = await getChatUsers(user.user_id)
-    const Data = await Promise.all(users?.map(async (m)=>{
-        const [des] = await getChatUsersLastMessage(user.user_id,m.recipient_id)
-        return des;
-    }))
-    res.json({success:true,users:Data})
-})
-
-app.get('/usersChatT', async (req, res) => {
+app.get('/usersChat', async (req, res) => {
     const user = req.body.user || 'alice';
 
     try {
@@ -123,6 +106,10 @@ app.post('/users', async (req,res)=>{
     const username = req.body.search;
     const users = await getUserList(username)
     res.json({success:true,users})
+})
+
+app.get('/verifyToken',(req,res)=>{
+    res.json({success:true})
 })
 
 // Socket Consumer

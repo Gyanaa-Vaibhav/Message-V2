@@ -33,6 +33,10 @@ export default function webSocket(io: SocketIOServer): void {
         // Typing Handler
         handelSocketTyping({socket,io,userMap})
 
+        socket.on('inChat',()=>{
+            socket.broadcast.emit('userInChat')
+        })
+
         socket.on('disconnect', () => {
             console.log(`Disconnected: ${socket.id}`);
             const userId = Object.keys(userMap).find((key) => userMap[key] === socket.id);

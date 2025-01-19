@@ -1,5 +1,5 @@
 import cloud from '/svg/cloud_icon.svg?url'
-import '../styles/UploadHandler.css'
+import '../mainStyles/UploadHandler.css'
 import React from "react";
 import {Socket} from "socket.io-client";
 
