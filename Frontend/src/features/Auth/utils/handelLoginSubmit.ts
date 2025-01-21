@@ -1,5 +1,4 @@
 import React from "react";
-import decryptPrivateKey from "../../../shared/decryptPrivateKey.ts";
 
 const validateEmail = (value:string):boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -10,27 +9,33 @@ const validatePassword = (value:string):boolean => {
     return value.length >= 8;
 };
 
-const privateKey = localStorage.getItem('privateKey')
 // fetch(url).then(res => res.json()).then(data => console.log(data))  //Test Fetch
 
+type ValidateData = {
+    password:string,
+    email:string,
+    opt:string,
+    message:string,
+    decryptedKey:string
+}
+
 type Props = {
-    e: React.MouseEvent<HTMLButtonElement>,
+    e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>,
     emailRef:React.RefObject<HTMLInputElement>,
     passwordRef:React.RefObject<HTMLInputElement>,
-    saltRef:React.RefObject<HTMLTextAreaElement>,
     setErrors: React.Dispatch<React.SetStateAction<{
         email: string,
         password: string
-        keys: string
+        otp: string
     }>>,
-    showKeyInput:boolean,
     setShowError: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+    setShowOPTScreen: React.Dispatch<React.SetStateAction<boolean>>,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
 }
 
 const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/login' : '/login';
 
-export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,setErrors,setShowError,setErrorMessage}:Props){
+export function handelLoginSubmit({e,emailRef,passwordRef,setErrors,setShowError,setErrorMessage,setShowOPTScreen}:Props){
     e.preventDefault();
     if(!emailRef.current || !passwordRef.current) return;
 
@@ -38,38 +43,25 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
     const passwordError = validatePassword(passwordRef.current.value) ? '' : 'Password must be at least 8 characters long';
 
     if (!emailError && !passwordError) {
-        setErrors({ email: '', password: '' ,keys: ''});
+        setErrors({ email: '', password: '' ,otp: ''});
     } else {
-        setErrors({ email: emailError, password: passwordError, keys: ''});
+        setErrors({ email: emailError, password: passwordError, otp: ''});
         return
     }
 
-    const body = showKeyInput
-        ? {
-            email: emailRef.current.value,
-            password: passwordRef.current.value,
-            salt: saltRef.current?.value,
-            privateKey,
-        }
-        : {
-            email: emailRef.current.value,
-            password: passwordRef.current.value,
-            privateKey,
-        };
-
-    function validate(data:any){
+    function validate(data:ValidateData){
         if(data.password){
-            setErrors({ email: '', password: data.message , keys: ''});
+            setErrors({ email: '', password: data.message , otp: ''});
             setErrorMessage(data.message);
             setShowError(true);
         }
         if(data.email){
-            setErrors({ email: data.message, password: passwordError , keys: ''});
+            setErrors({ email: data.message, password: passwordError , otp: ''});
             setErrorMessage(data.message)
             setShowError(true);
         }
-        if(data.key){
-            setErrors({ email: emailError, password: passwordError, keys: data.message})
+        if(data.opt){
+            setErrors({ email: emailError, password: passwordError, otp: data.message})
             setErrorMessage(data.message)
             setShowError(true);
         }
@@ -77,7 +69,6 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
 
         if(data.decryptedKey){
             localStorage.setItem('privateKey', data.decryptedKey);
-            console.log(decryptPrivateKey(data.decryptedKey,emailRef.current.value))
         }
     }
 
@@ -86,13 +77,16 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
         headers: {
             'Content-Type': 'application/json', // Specify content type
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+            email: emailRef.current.value,
+            password: passwordRef.current.value,
+        }),
         credentials: 'include',
     })
         .then((response) => {
             if(response.status === 403){
                 response.json().then(data => {
-                    setErrors({email: emailError, password: passwordError, keys: data.message})
+                    setErrors({email: emailError, password: passwordError, otp: data.message})
                     setErrorMessage(data.message)
                     setShowError(true);
                 })
@@ -104,10 +98,11 @@ export function handelLoginSubmit({e,emailRef,passwordRef,saltRef,showKeyInput,s
         })
         .then((data) => {
             console.log(data)
-            validate(data)
-            if(data.success){
-                localStorage.setItem('accessToken', data.accessToken);
-                window.location.pathname = '/chat'; // Redirect to the home page
+            validate(data) // Sets Error if any field is incorrect
+            if(data.success && data.optGenerated){
+                setShowOPTScreen(true)
+                // localStorage.setItem('accessToken', data.accessToken);
+                // window.location.pathname = '/chat'; // Redirect to the home page
             }
         })
         .catch((error) => {

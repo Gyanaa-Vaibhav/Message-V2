@@ -1,6 +1,6 @@
 import express from 'express';
 import {handelRegister, renderRegister} from '../controllers/RegisterController.js';
-import {validate, validateRegister} from "../../../shared/utils/expressValidator.js";
+import {validate, validateRegister} from "../../../config/utils/expressValidator.js";
 
 const RegisterRouter = express.Router();
 

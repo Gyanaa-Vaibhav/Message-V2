@@ -68,7 +68,7 @@ export default  function Register(){
                         autoComplete={'off'}
                     />
                     {errors.username &&
-                        <small style={{color: '#ffa5a5'}}>{errors.username}</small>
+                        <small style={{color: '#e5484d'}}>{errors.username}</small>
                     }
 
                     <Input
@@ -81,7 +81,7 @@ export default  function Register(){
                         autoComplete={'off'}
                     />
                     {errors.email &&
-                        <small style={{color: '#ffa5a5'}}>{errors.email}</small>
+                        <small style={{color: '#e5484d'}}>{errors.email}</small>
                     }
 
                     <div>
@@ -90,6 +90,7 @@ export default  function Register(){
                         </label>
                         <div className='password-container'>
                             <input
+                                style={{backgroundColor: errors.email ? 'transparent' : '#3c454a'}}
                                 ref={passwordRef}
                                 type={`${showPassword ? 'text' : 'password'}`}
                                 name={'password'}
@@ -111,7 +112,7 @@ export default  function Register(){
                         </div>
                     </div>
                     {errors.password &&
-                        <small style={{color: '#ffa5a5'}}>{errors.password}</small>
+                        <small style={{color: '#e5484d'}}>{errors.password}</small>
                     }
 
                     <div>
@@ -120,6 +121,7 @@ export default  function Register(){
                         </label>
                         <div className='password-container'>
                             <input
+                                style={{backgroundColor: errors.email ? 'transparent' : '#3c454a'}}
                                 ref={confirmPasswordRef}
                                 type={`${showPasswordCNF ? 'text' : 'password'}`}
                                 name={'confirm_password'}
@@ -141,7 +143,7 @@ export default  function Register(){
                         </div>
                     </div>
                     {errors.confirmPassword &&
-                        <small style={{color: '#ffa5a5'}}>{errors.confirmPassword}</small>
+                        <small style={{color: '#e5484d'}}>{errors.confirmPassword}</small>
                     }
 
                     <Button

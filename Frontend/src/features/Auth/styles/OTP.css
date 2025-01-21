@@ -1,0 +1,108 @@
+.verify-OTP{
+    width: 100%;
+    color: #d1d7db;
+    max-width: 400px;
+    padding: 2rem 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #000000;
+    box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.4);
+    font-family: var(--secondary-font), sans-serif;
+    transition: padding 0.3s ease, box-shadow 0.3s ease;
+    margin: 40vh auto 0;
+    transform: translateY(-40%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.verify-OTP h1 {
+    color: #25d366;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-family: var(--primary-font), serif;
+}
+
+.verify-OTP p {
+    text-align: center;
+}
+
+.verify-OTP{
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.otp-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.opt-holder{
+    display: flex;
+    gap: 5px;
+}
+
+.otp-input {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.otp-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.otp-submit {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.otp-submit:hover {
+    background-color: #0056b3;
+}
+
+.resend-timer {
+    font-size: 0.85rem;
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    background-color: #262626;
+    padding: 0.45rem;
+    border-radius: 10px;
+    max-width: fit-content;
+    word-wrap: break-word;
+    white-space: nowrap;
+    color: #fff;
+}
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}

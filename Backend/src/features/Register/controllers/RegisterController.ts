@@ -3,8 +3,9 @@ import {NextFunction, Request, Response} from 'express';
 import * as crypto from 'crypto'
 import {hashPassword} from "../utils/hashPassword.js";
 import dotenv from "dotenv";
-import {addUser} from "../../../shared/DataBase/dbExports.js";
-import {checkUser, encryptPrivateKey, genSalts, sendSaltsEmail} from "../models/RegisterModel.js";
+import {addUser} from "../../../config/DataBase/dbExports.js";
+import {checkUserData, encryptPrivateKey, genSalts} from "../models/RegisterModel.js";
+import {addToKeys} from "../../../config/DataBase/addQueries/addToKeys.js";
 dotenv.config();
 
 export const renderRegister = (res:Response) => {
@@ -13,15 +14,18 @@ export const renderRegister = (res:Response) => {
 
 export const handelRegister = async (req:Request, res:Response,next:NextFunction) => {
     try {
-        if(!process.env.PASSWORD_HASH) throw new Error('.ENV missing');
+        if(!process.env.PASSWORD_HASH) {
+            console.log('.ENV missing')
+            return;
+        }
 
         const email = req.body.email;
         const username = req.body.username;
         const password = hashPassword(req.body.password,process.env.PASSWORD_HASH);
 
-        const userExists = await checkUser(email,username)
-        if(userExists){
-            res.json(userExists)
+        const userDetails = await checkUserData(email,username)
+        if(userDetails){
+            res.json(userDetails)
             return;
         }
 
@@ -41,12 +45,13 @@ export const handelRegister = async (req:Request, res:Response,next:NextFunction
         const hashedPrivateKey = encryptPrivateKey(privateKey,email)
         const encryptedPrivateKey = encryptPrivateKey(hashedPrivateKey,concatenatedSalts)
 
-        sendSaltsEmail(concatenatedSalts,email,username);
+        // sendSaltsEmail(concatenatedSalts,email,username);
 
-        const userObject = {username,password,email,public_key:publicKey,private_key:encryptedPrivateKey}
-        await addUser(userObject)
+        const user_Id = await addUser({username,password,email});
+        const keysObject = {user_Id,salt:concatenatedSalts,public_key:publicKey,private_key:encryptedPrivateKey}
+        await addToKeys(keysObject)
 
-        res.json({success:true,message:'Registration Successful',hashedPrivateKey})
+        res.json({success:true,message:'Registration Successful'})
 
     }catch (error:any){
         console.log(error.stack)

@@ -1,4 +1,14 @@
-.form-container {
+.heading{
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 1.5rem;
+}
+.error:focus{
+    border: 1px solid #7f0001;!important;
+}
+
+.form-container{
     width: 100%;
     color: #d1d7db;
     max-width: 400px;
@@ -6,23 +16,20 @@
     padding: 2rem 1.5rem;
     border-radius: 0.5rem;
     transform: translateY(-30%);
-    background-color: #000000;
-    box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.4);
     font-family: var(--secondary-font), sans-serif;
     transition: padding 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-container h1 {
-    color: #25d366;
-    font-size: 3rem;
-    text-align: center;
+.form-container h1, .verify-OTP h1 {
+    color: var(--secondary-colour);
+    font-size: 2rem;
+    text-align: left;
     font-family: var(--primary-font), serif;
 }
 
 .password-container {
     display: flex;
     align-items: center;
-    background-color: #3c454a;
     border: 1px solid #ccc;
     border-radius: 5px;
     overflow: hidden;
@@ -34,6 +41,7 @@
     flex: 1;
     padding-right: 40px;
 }
+
 .password-container input:focus {
     border: none;
     border-radius: 0;
@@ -42,7 +50,6 @@
 }
 
 .password-container:focus-within {
-    background-color: #3c454a;
     border: 1px solid #25d366;
     color: white;
     outline: none;
@@ -132,8 +139,8 @@ input:focus, textarea:focus, select:focus, .password-container:focus {
 }
 
 input:focus .password-container{
-    background-color: #3c454a;
-    border-color: #25d366;
+    /*background-color: #3c454a;*/
+    border-color: #25d366;!important;
     color: white;
     outline: none;
 }
@@ -302,4 +309,3 @@ input::placeholder, textarea::placeholder {
         font-size: 12px;
     }
 }
-

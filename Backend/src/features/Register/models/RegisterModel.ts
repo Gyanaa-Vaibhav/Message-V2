@@ -1,11 +1,11 @@
 // Placeholder for the Register model
 // Currently empty; add schema or logic here as needed
 import nodemailer from "nodemailer";
-import {getUser} from "../../../shared/DataBase/dbExports.js";
+import {getUser} from "../../../config/DataBase/dbExports.js";
 import crypto from "crypto";
 import CryptoJS from "crypto-js";
 
-async function checkUser(email:string,username:string){
+async function checkUserData(email:string,username:string){
     const [user] = await getUser({email, username})
 
     if(user){
@@ -27,7 +27,7 @@ function genSalts(){
     return `${salt1.toString('hex')}${salt2.toString('hex')}${salt3.toString('hex')}`;
 }
 
-function sendSaltsEmail(concatenatedSalts:string,userEmail:string,userName:string){
+function sendWelcomeEmail(concatenatedSalts:string,userEmail:string,userName:string){
     // Configure the transporter
     const date = new Date().getFullYear()
 
@@ -44,7 +44,7 @@ function sendSaltsEmail(concatenatedSalts:string,userEmail:string,userName:strin
     const mailOptions = {
         from: 'gynanrudr0@gmail.com',
         to: 'samd11.2.2005@gmail.com', // Receiver address TODO change to userEmail after testing
-        subject: 'Welcome to MessageINC - Your Super Secret Key', // Subject line
+        subject: 'Welcome to the World of Secrecy and Privacy', // Subject line TODO Add name to website
         html:
             `
                     <div style="font-family: Arial, sans-serif; background-color: var(--background-primary); color: var(--accent-colour); padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
@@ -87,4 +87,4 @@ function encryptPrivateKey(privateKey: string, string:string) {
     return CryptoJS.AES.encrypt(privateKey, string).toString();
 }
 
-export {sendSaltsEmail,checkUser,genSalts,encryptPrivateKey};
+export {sendWelcomeEmail,checkUserData,genSalts,encryptPrivateKey};

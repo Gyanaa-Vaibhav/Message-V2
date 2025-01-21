@@ -21,7 +21,7 @@ const letterVariants = {
     visible: { opacity: 1, y: 0,transition: { repeat: Infinity, duration: 2, ease: "easeInOut" } },
 };
 
-const TypingText = ({text}:TypingTextProps): JSX.Element => (
+const TypingText = ({text}:TypingTextProps) => (
     <motion.h1 variants={typingVariants} initial="hidden" animate="visible">
         {text.split("").map((char:string, i:number) => (
             <motion.span key={i} variants={letterVariants}>

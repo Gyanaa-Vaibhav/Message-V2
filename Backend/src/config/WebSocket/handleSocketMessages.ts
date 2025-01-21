@@ -38,8 +38,11 @@ export default function handleSocketMessages({socket, io, userMap}:Props){
         if (recipientSocketId) {
             // If user active send message
             io.to(recipientSocketId).emit('sendMessage', { message, from });
+
+            // Sends a Delivered socket in UI No refresh needed
             io.emit('delivered');
         } else {
+
             // If user offline store to database
             const msg = {message: message.message,userId:message.userId,activeUserId:message.activeUserId,timestamp:message.timestamp}
             // console.log("Message Object",msg)
@@ -50,11 +53,17 @@ export default function handleSocketMessages({socket, io, userMap}:Props){
 
     socket.on('getMessage', async ({userId,activeUserId}:{userId:number,activeUserId:number})=>{
         if(userId && activeUserId){
+            // Get the messages Faster than manual fetch
             const messages = await getChatMessagesByID(activeUserId,userId)
-            console.log(activeUserId,userId)
-            await updateMessagesToSeen(activeUserId,userId)
+
+            // Sends back the messages
             socket.emit(`userChats`,messages)
+
+            // Sends a seen socket in UI No refresh needed
             socket.broadcast.emit('userSeen',{userId,activeUserId})
+
+            // Updates the messages to Seen in database
+            await updateMessagesToSeen(activeUserId,userId)
         }
     })
 }

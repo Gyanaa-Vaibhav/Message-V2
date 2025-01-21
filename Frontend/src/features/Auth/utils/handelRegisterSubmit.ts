@@ -85,7 +85,7 @@ export function handelRegisterSubmit({e,emailRef,passwordRef,confirmPasswordRef,
                 localStorage.setItem('privateKey',data.hashedPrivateKey)
                 setPopupMessage('You have successfully registered! Redirecting to login page...');
                 setShowPopup(true)
-                setTimeout(()=>{window.location.pathname = '/login'}, 3000);
+                // setTimeout(()=>{window.location.pathname = '/login'}, 3000);
             } else {
                 if(data.username){
                     setErrors({username: 'Username already exists use different name', email: '', password: '' , confirmPassword: ''});

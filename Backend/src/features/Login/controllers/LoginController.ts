@@ -1,84 +1,45 @@
 // Controller for Login
-import CryptoJS from "crypto-js";
 import {NextFunction, Request, Response} from 'express';
 import {hashPassword} from "../../Register/utils/hashPassword.js";
+import {getUserData} from "../../../config/DataBase/dbExports.js";
+import {validateOtp} from "../models/LoginModel.js";
 import dotenv from "dotenv";
-import {getUserData} from "../../../shared/DataBase/dbExports.js";
-import {generateAccessToken, generateRefreshToken} from "../../../shared/utils/jwt.js";
 dotenv.config()
 
 export const renderLogin = (req: Request, res: Response) => {
     res.json({success:true,message:'Render Login page here'});
 };
 
+const otpData: { [email: string]: number } = {};
+
 export const handelLogin = async (req: Request, res: Response,next:NextFunction) => {
     try {
 
+        console.log(req.body)
         const email = req.body.email
+
         const [userData] = await getUserData(email);
         if(!userData) {
             res.json({success:false,message:'User does not exists please register',email:true})
             return;
         }
 
-        if(!process.env.PASSWORD_HASH) {
-            console.log('.ENV missing')
-            return
-        }
+        const verify = validateOtp({req,res,userData,otpData,email})
+        if(verify) return;
 
+        otpData[email] = Math.floor(Math.random() * 10000)
+        console.log(otpData)
+
+        if(!process.env.PASSWORD_HASH) return;
         const password = hashPassword(req.body.password,process.env.PASSWORD_HASH)
-        if(password!==userData.password) {
+        if(password !== userData.password) {
             res.json({success:false,message:'Wrong Password please try again',password:true})
             return;
         }
 
-        if(!req.body.privateKey){
-            if(!req.body.salt){
-                res.json({success:false,message:'Keys/Salts should not be empty',key:true})
-                return;
-            }
-        }
-
-        try {
-            if(req.body.salt){
-                CryptoJS.AES.decrypt(userData.private_key, req.body.salt).toString(CryptoJS.enc.Utf8);
-            }
-        }catch (e){
-            res.status(403).json({ success: false, message: 'Error Decrypting Keys. Salt is invalid' ,keys:true});
-            return;
-        }
-
-        const payload = {user_id:userData.user_id,username:userData.username,email:userData.email}
-        const accessToken = generateAccessToken(payload)
-        const refreshToken = generateRefreshToken(payload)
-
-        if(req.body.salt){
-            const decryptedKey = CryptoJS.AES.decrypt(userData.private_key, req.body.salt).toString(CryptoJS.enc.Utf8);
-            res.cookie('refreshToken',refreshToken,{
-                httpOnly: true,
-                secure: false, // TODO change to true in Prod
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            })
-
-            res.json({
-                success: true,
-                decryptedKey,
-                accessToken,
-            });
-            return;
-        }
-
-        res.cookie('refreshToken',refreshToken,{
-            httpOnly: true,
-            secure: false, // TODO change to true in Prod
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-
         res.json({
             success: true,
-            accessToken,
+            optGenerated:true,
         });
     }catch (e){
         next(e)

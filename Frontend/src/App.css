@@ -6,6 +6,17 @@
 }
 
 @font-face {
+    font-family: 'Circular';
+    src: url('/fonts/Circular.woff2') format('woff');
+    font-weight: 100 900;
+}
+
+@font-face {
+    font-family: 'Circular-Medium';
+    src: url('/fonts/Circular-Medium.woff2') format('woff');
+}
+
+@font-face {
     font-family: 'Roboto Slab';
     src: url('/fonts/RobotoSlab.ttf') format('truetype');
     font-weight: 100 900;
@@ -15,7 +26,7 @@
 :root{
     --accent-colour : #8696A0;
 
-    --secondary-colour: #25D366;
+    --secondary-colour: #36cd89;
     --secondary-colour-hover: #80ffae;
 
     --background-primary : #121212;
@@ -24,8 +35,8 @@
     --background-secondary: #1A1A1A;
     --background-secondary-hover: #333333;
 
-    --primary-font : "Roboto Slab", serif;
-    --secondary-font : 'OpenSans', sans-serif;
+    --primary-font : "Circular-Medium", serif;
+    --secondary-font : 'Circular', sans-serif;
 }
 
 h1{
