@@ -6,30 +6,80 @@ import {User} from "../../ChatLayout/types/ChatLayout.ts";
 
 type Props = {
     messageData : MessageData,
-    userId:number
+    userId:number,
+    usersList: User[],
     setMessages:React.Dispatch<React.SetStateAction<Message[]>>
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
-const handleSendMessage = ({messageData, userId, setMessages,setUsersList}:Props) => {
+const handleSendMessage = async ({ messageData, userId, setMessages, setUsersList, usersList }: Props) => {
     const { message, from } = messageData;
     const timestamp = new Date().toISOString();
-    setUsersList((prevChats) => {
-        const updatedChats = prevChats.map((chat) => {
-            return chat.recipient_id === Number(from)
-                ? {
-                ...chat,
+
+    setUsersList((prevUsersList) => {
+        const userExist = prevUsersList.some((m) => m.recipient_id === message.activeUserId);
+
+        if (!userExist) {
+            console.log('user not found');
+
+            // Temporarily add user with a placeholder until data is fetched
+            return [
+                {
+                    seen: false,
                     message: message.message,
+                    recipient_username: 'Loading...',  // Placeholder
                     timestamp,
-                    unread_count: Number(chat.unread_count) + 1,
-                }
-                : chat
-        })
-        return updatedChats.sort(function(x, y){
-            // return new Date(y.timestamp) - new Date(x.timestamp)
-            return y.timestamp.localeCompare(x.timestamp);
-        })
-    })
+                    recipient_id: message.activeUserId,
+                    profile_picture: '',
+                    unread_count: 1,
+                },
+                ...prevUsersList
+            ];
+        } else {
+            console.log("in else block");
+            return prevUsersList.map((chat) =>
+                chat.recipient_id === Number(from)
+                    ? {
+                        ...chat,
+                        message: message.message,
+                        timestamp,
+                        unread_count: Number(chat.unread_count) + 1,
+                    }
+                    : chat
+            );
+        }
+    });
+
+    // Fetch user data separately after checking existence
+    const userExist = usersList.some((m) => m.recipient_id === message.activeUserId);
+    if (!userExist) {
+        const url = import.meta.env.VITE_SERVER_IP
+            ? import.meta.env.VITE_SERVER_IP + `/users/${message.activeUserId}`
+            : `/users/${message.activeUserId}`;
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const userName = data.usersData.username;
+            const profile_picture = data.usersData.profile_picture;
+
+            // Update the placeholder entry with the actual data
+            setUsersList((currentChats) =>
+                currentChats.map((chat) =>
+                    chat.recipient_id === message.activeUserId
+                        ? {
+                            ...chat,
+                            recipient_username: userName,
+                            profile_picture,
+                        }
+                        : chat
+                )
+            );
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    }
+
     if (Number(from) === userId) {
         setMessages((prev) => [...prev, message]);
     }
@@ -40,7 +90,6 @@ export type SendMessageParams = {
     outGoingMessage: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
     activeUser: string;
-    // user: string;
     setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>;
     textareaRef:React.RefObject<HTMLTextAreaElement>;
     userId:number;
@@ -78,8 +127,11 @@ const sendMessage = (props: SendMessageParams) => {
         // Emit the message to the server
         socket.emit('message', { message, to: userId });
 
-        // Update the messages state with the new message
-        setMessages((prev) => [...prev, message]);
+        // if the user is sending to self no need to update the DOM
+        if(message.activeUserId !== message.userId){
+            // Update the messages state with the new message
+            setMessages((prev) => [...prev, {...message}]);
+        }
 
         // Clear the outgoing message input field
         setOutGoingMessage('');

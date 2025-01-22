@@ -57,7 +57,12 @@ app.use(express.static(path.join(homeDir)))
 // Routes
 app.use('/login',loginRouter)
 app.use('/register',RegisterRouter)
-
+app.get('/users/:id', async (req,res)=>{
+    const {id} = req.params;
+    const [users] = await getUser({user_id:Number(id)})
+    const [usersData] = await getUserList(users.username)
+    res.json({success:true,usersData})
+})
 app.get('/refreshToken',refreshToken)
 
 app.use(sign)

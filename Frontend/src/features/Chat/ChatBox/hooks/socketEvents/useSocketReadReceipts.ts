@@ -14,6 +14,7 @@ export default function useSocketReadReceipts({socket,setMessages,activeUserId,u
     React.useEffect(()=>{
         if (!socket) return
         socket.on('delivered',()=>{
+            console.log('delivered')
             setMessages(prev=>{
                 return prev.map(m => {
                     if(m.seen !== null) return m;

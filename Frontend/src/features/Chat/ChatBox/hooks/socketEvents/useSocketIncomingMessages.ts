@@ -1,21 +1,19 @@
 import React from "react";
-import {Message, MessageData} from "../../types/ChatBox.ts";
+import {MessageData} from "../../types/ChatBox.ts";
 import { Socket } from "socket.io-client";
 import {DefaultEventsMap} from '@socket.io/component-emitter'
 import {handleSendMessage} from "../../utils/handelMessage.ts";
-import {User} from "../../../ChatLayout/types/ChatLayout.ts";
+import {useUserContext} from "../../ChatContext.tsx";
 
 type Props = {
     socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
     setIsUserTyping: React.Dispatch<React.SetStateAction<boolean>>;
-    setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-    userId:number,
-    setUsersList: React.Dispatch<React.SetStateAction<User[]>>,
     setNewMessage: (value: React.SetStateAction<boolean>) => void
 }
 
 
-export default function useSocketIncomingMessages({socket,userId,setNewMessage,setIsUserTyping,setMessages,setUsersList}:Props){
+export default function useSocketIncomingMessages({socket,setNewMessage,setIsUserTyping}:Props){
+    const { userId, setUsersList,setMessages ,usersList} = useUserContext();
     React.useEffect(() => {
         if (!socket) return;
 
@@ -26,7 +24,7 @@ export default function useSocketIncomingMessages({socket,userId,setNewMessage,s
                 setNewMessage(true)
             }
             setIsUserTyping(false);
-            handleSendMessage({ messageData, userId, setMessages, setUsersList});
+            handleSendMessage({ messageData, userId, setMessages, setUsersList,usersList});
         };
 
         socket.on('sendMessage', handleIncomingMessage);

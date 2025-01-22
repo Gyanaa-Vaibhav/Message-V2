@@ -9,8 +9,6 @@ export async function updateMessagesToSeen(activeUserId:number,userId:number){
           AND seen IN (false, NULL);
         ;
     `
-    console.log('Updating...')
     const values = [userId,activeUserId]
     const {rows} = await pool.query(query,values)
-    console.log(rows)
 }

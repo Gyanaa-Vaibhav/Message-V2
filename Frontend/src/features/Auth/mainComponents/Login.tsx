@@ -148,8 +148,10 @@ const Login = () => {
                             onClick={(e:React.MouseEvent<HTMLButtonElement>)=>handelLoginSubmit({...loginObject,e})}
                         />
 
+                        <div className='links'>
                         <p className="register-link">Don't have an account? <a href="/register">Register here</a></p>
                         <p className="register-link">Use as <a href="/guest">Guest</a></p>
+                        </div>
                     </form>
                 </motion.div>
             }

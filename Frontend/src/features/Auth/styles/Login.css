@@ -72,12 +72,12 @@
     text-align: center;
     font-size: 1rem;
     color: var(--accent-colour);
-    margin-top: 0.5rem;
+    margin-top: 1rem;
 }
 
 .register-link a {
-    color: var(--secondary-colour);
-    text-decoration: none;
+    color: #e3e3e3;
+    text-decoration: underline;
     font-weight: bold;
     transition: color 0.3s ease;
 }
@@ -116,7 +116,6 @@
 
 #loginForm label{
     font-weight: bold;
-    color: var(--accent-colour);
 }
 
 input, textarea, select {
@@ -177,7 +176,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .popup-close-btn {
-    background-color: #007bff;
+    background-color: #006239;
     color: #ffffff;
     border: none;
     padding: 10px 20px;
@@ -190,7 +189,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .popup-close-btn:hover {
-    background-color: #1ebd56;
+    background-color: #3ECF8E80;
 }
 
 .popup p {
@@ -209,6 +208,14 @@ input::placeholder, textarea::placeholder {
     background-color: #25d366;
     animation: sliderFill 3s linear;
     width: 0;
+}
+
+.links{
+    margin-top: 1rem;
+}
+
+.links > p{
+    margin-top: 0;
 }
 
 @keyframes sliderFill {

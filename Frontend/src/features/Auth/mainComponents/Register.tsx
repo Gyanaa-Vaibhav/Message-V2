@@ -1,8 +1,7 @@
 import {useRef, useState} from "react";
 import '../styles/Login.css'
-import Input from "../Input/Input.tsx";
+import '../Input/Input.css'
 import Button from "../Button/Button.tsx";
-import StarAnimation from "../../LandingPage/components/StarAnimation.tsx";
 import NavBar from "../../NavBar/components/NavBar.tsx";
 import HideIcon from '/svg/hide_icon.svg?url'
 import ShowIcon from '/svg/show_icon.svg?url'
@@ -27,38 +26,28 @@ export default  function Register(){
         username:'' ,email: '', password: '' ,confirmPassword: ''
     });
 
-    const handleFocus = () => setIsFocused(true);
-    const handleFocusOnCNF = () => setIsFocusedOnCNF(true);
-
-    const handleBlur = () => {
-        setShowPassword(false)
-        setIsFocused(false);
-    }
-
-    const handleBlurOnCNF = () => {
-        setShowPasswordCNF(false)
-        setIsFocusedOnCNF(false)
-    };
-
     const submitObjects = {
         emailRef,passwordRef,confirmPasswordRef,usernameRef,setErrors,setPopupMessage,setShowPopup
     }
 
-    const closePopup = () => {
-        setShowPopup(false);
-    };
-
     return (
         <>
             <NavBar/>
-            <StarAnimation/>
             <div className="form-container">
-                <h1>Register</h1>
+                <div className='heading'>
+                    <h1>Get Started</h1>
+                    <p>Create a new account</p>
+                </div>
 
-                <form
-                    // onSubmit={(e) => handelSubmit(e)}
-                >
-                    <Input
+                <form>
+                    <div>
+                        <label htmlFor='username'>
+                            Username:
+                        </label>
+                    <input
+                        style={{
+                            backgroundColor: errors.username? '#7e221560' : '#3c454a',
+                        }}
                         ref={usernameRef}
                         type={'text'}
                         name={'username'}
@@ -67,19 +56,31 @@ export default  function Register(){
                         required={true}
                         autoComplete={'off'}
                     />
+                    </div>
                     {errors.username &&
                         <small style={{color: '#e5484d'}}>{errors.username}</small>
                     }
 
-                    <Input
-                        ref={emailRef}
-                        type={'email'}
-                        name={'email'}
-                        id={"email"}
-                        placeholder={"Enter your email"}
-                        required={true}
-                        autoComplete={'off'}
-                    />
+                    <div>
+                        <label htmlFor='email'>
+                            Email:
+                        </label>
+                        <div>
+                            <input
+                                style={{
+                                    backgroundColor: errors.email? '#7e221560' : '#3c454a',
+                                }}
+                                className={errors.email ? 'error' : ''}
+                                ref={emailRef}
+                                type={'email'}
+                                name={'email'}
+                                id={"email"}
+                                placeholder={"Enter your email"}
+                                required={true}
+                                autoComplete={'off'}
+                            />
+                        </div>
+                    </div>
                     {errors.email &&
                         <small style={{color: '#e5484d'}}>{errors.email}</small>
                     }
@@ -88,7 +89,10 @@ export default  function Register(){
                         <label htmlFor='password'>
                             Password:
                         </label>
-                        <div className='password-container'>
+                        <div
+                            className='password-container'
+                            style={{backgroundColor: errors.email ? '#7e221560' : '#3c454a'}}
+                        >
                             <input
                                 style={{backgroundColor: errors.email ? 'transparent' : '#3c454a'}}
                                 ref={passwordRef}
@@ -98,8 +102,11 @@ export default  function Register(){
                                 placeholder={"Enter your password"}
                                 required={true}
                                 autoComplete={'off'}
-                                onFocus={handleFocus}
-                                onBlur={handleBlur}
+                                onFocus={()=>setIsFocused(true)}
+                                onBlur={()=>{
+                                    setShowPassword(false)
+                                    setIsFocused(false)
+                                }}
                             />
                             {isFocused && (
                                 <img
@@ -119,7 +126,10 @@ export default  function Register(){
                         <label htmlFor='confirm_password'>
                             Confirm Password:
                         </label>
-                        <div className='password-container'>
+                        <div
+                            className='password-container'
+                            style={{backgroundColor: errors.email ? '#7e221560' : '#3c454a'}}
+                        >
                             <input
                                 style={{backgroundColor: errors.email ? 'transparent' : '#3c454a'}}
                                 ref={confirmPasswordRef}
@@ -129,8 +139,11 @@ export default  function Register(){
                                 placeholder={"Confirm your password"}
                                 required={true}
                                 autoComplete={'off'}
-                                onFocus={handleFocusOnCNF}
-                                onBlur={handleBlurOnCNF}
+                                onFocus={()=>setIsFocusedOnCNF(true)}
+                                onBlur={()=>{
+                                    setShowPasswordCNF(false)
+                                    setIsFocusedOnCNF(false)
+                                }}
                             />
                             {isFocusedOnCNF && (
                                 <img
@@ -157,7 +170,7 @@ export default  function Register(){
                 {showPopup && (
                     <div
                         className="popup-overlay"
-                        onClick={closePopup}
+                        onClick={()=>setShowPopup(false)}
                     >
                         <div
                             className="popup"
@@ -165,7 +178,7 @@ export default  function Register(){
                         >
                             <p>{popupMessage}</p>
                             <div className="popup-slider"></div>
-                            <button className="popup-close-btn" onClick={closePopup}>
+                            <button className="popup-close-btn" onClick={()=>setShowPopup(false)}>
                                 Close
                             </button>
                         </div>

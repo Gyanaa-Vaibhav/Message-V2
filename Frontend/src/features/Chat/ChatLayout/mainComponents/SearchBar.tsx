@@ -1,6 +1,6 @@
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import search_icon from '/svg/search_icon.svg?url'
-import {UserSearch} from "./ChatLayout.tsx";
+import {UserSearch} from "../types/ChatLayout.ts";
 
 
 type Props = {

@@ -50,7 +50,7 @@ export function useSocketInstance(activeUserId?:number){
 
 export default function useSocket(props:Props){
     const {activeUserId,setNewMessage,setIsUserTyping,setIsUserTypingId} = props
-    const { userId, setUsersList,setMessages} = useUserContext();
+    const { userId,setMessages,usersList, setUsersList} = useUserContext();
 
     const socket = useSocketInstance(activeUserId)
 
@@ -59,7 +59,7 @@ export default function useSocket(props:Props){
     useSocketUserChat(userChatObject);
 
     // Handel Incoming Messages
-    const incomingMessageObject = {socket,userId,setNewMessage,setIsUserTyping,setMessages,setUsersList};
+    const incomingMessageObject = {socket,setNewMessage,setIsUserTyping,usersList,setUsersList};
     useSocketIncomingMessages(incomingMessageObject)
 
     // Handel Typing Events

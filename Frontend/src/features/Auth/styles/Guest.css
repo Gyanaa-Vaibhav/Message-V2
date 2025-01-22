@@ -77,8 +77,7 @@
 label {
     cursor: pointer;
     color: #d1d7db;
-    font-size: 1.2rem;
-    margin-left: 10px;
+    font-size: 0.925rem;
 }
 
 .loading .dots{

@@ -199,7 +199,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                             />
                     )}
 
-                    {isUserTyping && isUserTypingId === userId &&
+                    {isUserTyping && isUserTypingId === userId && isUserTypingId !== activeUserId &&
                         <UserTyping/>
                     }
 

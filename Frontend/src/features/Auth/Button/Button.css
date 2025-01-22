@@ -1,6 +1,6 @@
 .button {
     width: 100%;
-    padding: 12px;
+    padding: 0.65rem;
     background-color: #006239;
     color: #fafafa;
     border: none;
@@ -9,12 +9,12 @@
     font-weight: bold;
     text-align: center;
     cursor: pointer;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: #3ECF8E80;
     transform: translateY(-2px);
 }
 

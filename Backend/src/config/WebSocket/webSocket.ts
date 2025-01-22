@@ -24,6 +24,7 @@ export default function webSocket(io: SocketIOServer): void {
         socket.on('register', (userId: string) => {
             // Storing the socket ID in a map for further use to send message and typing indicator.
             userMap[userId] = socket.id;
+            io.emit('delivered',(userId));
             console.log(`User ${userId} registered with socket ID ${socket.id}`);
         });
 
