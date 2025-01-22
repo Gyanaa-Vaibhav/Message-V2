@@ -7,20 +7,33 @@ type Props = {
     socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
     userId:number,
-    activeUserId:number
+    activeUserId:number,
+    messages: Message[]
 }
 
-export default function useSocketReadReceipts({socket,setMessages,activeUserId,userId}:Props){
+export default function useSocketReadReceipts({socket,setMessages,activeUserId,userId,messages}:Props){
     React.useEffect(()=>{
         if (!socket) return
         socket.on('delivered',()=>{
-            console.log('delivered')
             setMessages(prev=>{
                 return prev.map(m => {
                     if(m.seen !== null) return m;
                     return {...m,seen:false}
                 })
             })
+        })
+
+        socket.on('deliveredOnLogin',(data)=>{
+            console.log('some one logged')
+            const currentUser = messages.some((m)=> m.userId === data.user_id)
+            if(currentUser){
+                setMessages(prev=>{
+                    return prev.map(m => {
+                        if(m.seen !== null) return m;
+                        return {...m,seen:false}
+                    })
+                })
+            }
         })
 
         socket.on('userSeen',(prop)=>{

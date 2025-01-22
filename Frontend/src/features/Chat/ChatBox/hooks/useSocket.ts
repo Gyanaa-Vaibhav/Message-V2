@@ -50,7 +50,7 @@ export function useSocketInstance(activeUserId?:number){
 
 export default function useSocket(props:Props){
     const {activeUserId,setNewMessage,setIsUserTyping,setIsUserTypingId} = props
-    const { userId,setMessages,usersList, setUsersList} = useUserContext();
+    const { userId,setMessages,usersList, setUsersList,messages} = useUserContext();
 
     const socket = useSocketInstance(activeUserId)
 
@@ -66,7 +66,7 @@ export default function useSocket(props:Props){
     const typingObject = {socket,setIsUserTypingId,setIsUserTyping,userId};
     useSocketTyping(typingObject)
 
-    const readReceiptObject = {socket,setMessages,activeUserId,userId};
+    const readReceiptObject = {socket,setMessages,activeUserId,userId,messages};
     useSocketReadReceipts(readReceiptObject)
 
     return socket
