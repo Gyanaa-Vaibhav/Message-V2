@@ -32,11 +32,11 @@ const handleSendMessage = async ({ messageData, userId, setMessages, setUsersLis
                     recipient_id: message.activeUserId,
                     profile_picture: '',
                     unread_count: 1,
+                    public_key:'Loading...', // Placeholder
                 },
                 ...prevUsersList
             ];
         } else {
-            console.log("in else block");
             return prevUsersList.map((chat) =>
                 chat.recipient_id === Number(from)
                     ? {
@@ -62,6 +62,7 @@ const handleSendMessage = async ({ messageData, userId, setMessages, setUsersLis
             const data = await res.json();
             const userName = data.usersData.username;
             const profile_picture = data.usersData.profile_picture;
+            const public_key = data.usersData.public_key;
 
             // Update the placeholder entry with the actual data
             setUsersList((currentChats) =>
@@ -71,6 +72,7 @@ const handleSendMessage = async ({ messageData, userId, setMessages, setUsersLis
                             ...chat,
                             recipient_username: userName,
                             profile_picture,
+                            public_key,
                         }
                         : chat
                 )
@@ -89,7 +91,6 @@ export type SendMessageParams = {
     socket: Socket | null;
     outGoingMessage: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-    activeUser: string;
     setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>;
     textareaRef:React.RefObject<HTMLTextAreaElement>;
     userId:number;

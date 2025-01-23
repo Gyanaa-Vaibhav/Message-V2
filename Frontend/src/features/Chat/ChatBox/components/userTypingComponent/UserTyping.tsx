@@ -1,4 +1,4 @@
-import '../componentStyles/userTyping.css'
+import './userTyping.css'
 
 export default function UserTyping(){
     return(

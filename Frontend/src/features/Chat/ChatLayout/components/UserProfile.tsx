@@ -1,27 +1,24 @@
 import Account_img from '/svg/account_circle_icon.svg?url'
 import {User} from "../types/ChatLayout.ts";
 import React from "react";
+import {useUserContext} from "../../ChatBox/ChatContext.tsx";
 
 type Props = {
     m: User,
-    userId:number,
-    user: { name: string, img: string },
-    setUser: (value: React.SetStateAction<{
-        name: string,
-        img: string
-    }>) => void,
-    setUserId: (value: React.SetStateAction<number>) => void,
 }
 
-export default function UserProfile({m,userId,setUserId,setUser,user}:Props){
+export default function UserProfile({m}:Props){
 
-    const handleUserClick = React.useCallback((username: string, id: number,profile_picture:string) => {
+    const {userId,setUserId,setUser,user,setUserPublicKey} = useUserContext();
+
+    const handleUserClick = React.useCallback((username: string, id: number,profile_picture:string,public_key:string) => {
         if (user.name === username) return;
 
         setUser({name:username,img:profile_picture})
         setUserId(id)
+        setUserPublicKey(public_key)
 
-    },[user, setUser, setUserId]);
+    },[user, setUser, setUserId, setUserPublicKey]);
 
     const date = new Date(m.timestamp)
     const hours = String(date.getHours()).padStart(2, '0');
@@ -31,7 +28,7 @@ export default function UserProfile({m,userId,setUserId,setUser,user}:Props){
     return(
         <div
             onClick={()=> {
-                handleUserClick(m.recipient_username,m.recipient_id,m.profile_picture)
+                handleUserClick(m.recipient_username,m.recipient_id,m.profile_picture,m.public_key)
             }}
             className={`user-chat${userId === m.recipient_id ? ' selected' : ''}${isNaN(new Date(date).getTime()) ? ' new-user-chat' : ''}`
             }

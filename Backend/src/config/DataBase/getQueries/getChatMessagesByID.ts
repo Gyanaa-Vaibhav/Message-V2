@@ -1,6 +1,6 @@
 import {pool} from "../db.js";
 
-export async function getChatMessagesByID(activeUser:number, chatUser:number){
+export async function getChatMessagesByID(activeUserId:number, chatUserId:number){
     const query = `
         SELECT
             encrypted_message as message,
@@ -17,7 +17,7 @@ export async function getChatMessagesByID(activeUser:number, chatUser:number){
         ORDER BY
             m.timestamp;
     `;
-    const values =[activeUser, chatUser]
+    const values =[activeUserId, chatUserId]
     const {rows} = await pool.query(query,values);
     return rows || null;
 }

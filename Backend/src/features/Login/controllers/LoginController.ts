@@ -27,7 +27,7 @@ export const handelLogin = async (req: Request, res: Response,next:NextFunction)
         const verify = validateOtp({req,res,userData,otpData,email})
         if(verify) return;
 
-        otpData[email] = Math.floor(Math.random() * 10000)
+        otpData[email] = Math.floor(1000 + Math.random() * 9000);
         console.log(otpData)
 
         if(!process.env.PASSWORD_HASH) return;

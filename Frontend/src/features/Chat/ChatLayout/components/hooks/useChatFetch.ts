@@ -1,5 +1,5 @@
 import React from "react";
-import {useUserContext} from "../../ChatBox/ChatContext.tsx";
+import {useUserContext} from "../../../ChatBox/ChatContext.tsx";
 
 const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/usersChat' : '/usersChat';
 export default function useChatFetch(){

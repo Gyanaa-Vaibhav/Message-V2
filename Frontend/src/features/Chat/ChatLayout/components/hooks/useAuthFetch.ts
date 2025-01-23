@@ -1,7 +1,7 @@
 import React from "react";
 
 const url = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/verifyToken' : '/verifyToken';
-const refrshUrl = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/refreshToken' : '/refreshToken';
+const refreshUrl = import.meta.env.VITE_SERVER_IP ? import.meta.env.VITE_SERVER_IP+'/refreshToken' : '/refreshToken';
 
 export default function useAuthFetch():[boolean]{
     const [success,setSuccess] = React.useState<boolean>(false);
@@ -23,7 +23,7 @@ export default function useAuthFetch():[boolean]{
         .then(data => {
             if(data.success) setSuccess(true)
             if(!data.success){
-                fetch(refrshUrl,{
+                fetch(refreshUrl,{
                     method:'GET',
                     credentials:'include',
                 })

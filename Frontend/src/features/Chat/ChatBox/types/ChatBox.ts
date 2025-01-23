@@ -1,7 +1,6 @@
 // types for ChatBox
 
 type Props = {
-    activeUser: string;
     activeUserId:number;
     userEmail:string;
 };

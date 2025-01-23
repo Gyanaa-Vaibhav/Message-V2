@@ -1,20 +1,20 @@
 import '../mainStyles/ChatBox.css';
-import React, {useRef} from "react";
+import React from "react";
 
 import StarAnimation from "../../../LandingPage/components/StarAnimation.tsx";
-import {Props, Message} from "../types/ChatBox.ts";
+import {Message} from "../types/ChatBox.ts";
+import {useUserContext} from "../ChatContext.tsx";
 import UploadHandler from "./UploadHandler.tsx";
 import useSocket from "../hooks/useSocket.ts";
-import {handleInputChange, sendMessage} from "../utils/handelMessage.ts";
+import {sendMessage,handleInputChange,scrollToBottom,handleKeyDown,handleScroll} from "../utils/utilsExport.ts";
 import decryptPrivateKey from "../../../../shared/decryptPrivateKey.ts";
-import {useUserContext} from "../ChatContext.tsx";
-import scrollToBottom from "../utils/scrollToBottom.ts";
-import UserTyping from "../components/UserTyping.tsx";
-import MessagePupUp from "../components/MessagePupUp.tsx";
-import MessageInputContainer from "../components/MessageInputContainer.tsx";
-import MessageObject from "../components/MessageObject.tsx";
+import {MessagePopUp,UserTyping,MessageObject,MessageInputContainer} from "../components/componentsExports.ts";
 
-const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
+const ChatBox = () => {
+
+    // Items from Local Storage
+    const activeUserId = Number(localStorage.getItem('activeUserId'))
+    const userEmail = localStorage.getItem('userEmail')
 
     // Key Verifier
     const key = localStorage.getItem('privateKey')
@@ -23,7 +23,6 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
     }catch (e){
         localStorage.removeItem('privateKey')
         window.location.href = '/login'
-        console.log(e)
     }
 
     // Global Context
@@ -31,7 +30,6 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
 
     // Custom States
     const [outGoingMessage,setOutGoingMessage] = React.useState<string>('');
-    // const [messages,setMessages] = React.useState<Message[]>([]);
     const [newMessage, setNewMessage] = React.useState<boolean>(false);
     const [messagePopUp,setMessagePopUp] = React.useState<boolean>(false);
     const [isAtBottom, setIsAtBottom] = React.useState<boolean>(true);
@@ -43,17 +41,17 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
 
     // Refs
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
-    const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = React.useRef<HTMLDivElement>(null);
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-    const firstLoad = useRef<boolean>(false);
+    const firstLoad = React.useRef<boolean>(false);
 
     // Custom Objects
-    const messageObject = {socket, outGoingMessage, setMessages, setOutGoingMessage, activeUser,textareaRef,activeUserId,userId,setUsersList}
+    const messageObject = {socket, outGoingMessage, setMessages, setOutGoingMessage,textareaRef,activeUserId,userId,setUsersList}
+    const scrollObject = {messagesContainerRef,setNewMessage,setMessagePopUp,setIsAtBottom,isAtBottom}
     const handelChangeObject = {setOutGoingMessage,socket,userId,isUserTyping}
     const scrollToBottomObject = React.useMemo(() => {
         return { isAtBottom, firstLoad, messagesEndRef };
     }, [isAtBottom, firstLoad, messagesEndRef]);
-
 
     React.useEffect(() => {
         if(isAtBottom){
@@ -62,22 +60,6 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
             }
         }
     }, [isAtBottom, isUserTyping, isUserTypingId]);
-
-    const handleScroll = () => {
-        if(!messagesContainerRef.current) return;
-        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-
-        if(clientHeight+scrollTop + 100 <= scrollHeight) setMessagePopUp(true)
-
-        if(scrollTop + clientHeight >= scrollHeight){
-            setNewMessage(false)
-            setMessagePopUp(false);
-        }
-        if(isAtBottom){
-            setMessagePopUp(false)
-        }
-        setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 30);
-    };
 
     React.useEffect(()=>{
         if(firstLoad.current) firstLoad.current=false;
@@ -91,15 +73,6 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
         }
         setNewMessage(false);
     },[userId])
-
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (outGoingMessage.trim() !== '') {
-                sendMessage(messageObject);
-            }
-        }
-    };
 
     React.useEffect(()=>{
         if(isAtBottom){
@@ -184,7 +157,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
 
                 <div className='chat-container'
                      ref={messagesContainerRef}
-                     onScroll={handleScroll}
+                     onScroll={()=>handleScroll(scrollObject)}
                 >
                     <>
                         {m}
@@ -208,7 +181,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                 </div>
 
                 {messagePopUp &&
-                    <MessagePupUp
+                    <MessagePopUp
                         scrollToBottomObject={scrollToBottomObject}
                         newMessage={newMessage}
                     />
@@ -218,7 +191,7 @@ const ChatBox = ({ activeUser,activeUserId,userEmail}:Props) => {
                     textareaRef={textareaRef}
                     outGoingMessage={outGoingMessage}
                     handleInputChange={handleInputChange}
-                    handleKeyDown={handleKeyDown}
+                    handleKeyDown={(event)=>handleKeyDown({event,outGoingMessage,messageObject})}
                     sendMessage={sendMessage}
                     messageObject={messageObject}
                     handelChangeObject={handelChangeObject}

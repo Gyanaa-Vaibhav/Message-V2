@@ -4,8 +4,6 @@ import {Message} from "./types/ChatBox.ts";
 
 // Define the shape of the context
 interface UserContextType {
-    activeUser: string;
-    setActiveUser: React.Dispatch<React.SetStateAction<string>>;
     user: { name: string, img: string }
     setUser: React.Dispatch<React.SetStateAction<{ name: string, img: string }>>;
     userId: number;
@@ -13,7 +11,9 @@ interface UserContextType {
     usersList: User[];
     setUsersList: React.Dispatch<React.SetStateAction<User[]>>;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-    messages:Message[]
+    messages:Message[],
+    userPublicKey: string,
+    setUserPublicKey: React.Dispatch<React.SetStateAction<string>>,
 }
 
 // Create the context
@@ -28,21 +28,21 @@ interface UserProviderProps {
 
 // Context Provider
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-    const [activeUser, setActiveUser] = useState<string>('');
     const [user, setUser] = useState<{ name:string,img:string }>({name:'',img:''}); // To share the userName for the Nav bar
     const [userId, setUserId] = useState<number>(NaN);
+    const [userPublicKey, setUserPublicKey] = useState<string>('');
     const [usersList, setUsersList] = useState<User[]>([]);
     const [messages,setMessages] = React.useState<Message[]>([]);
 
     return (
         <UserContext.Provider
             value={{
-                activeUser,
-                setActiveUser,
                 user,
                 setUser,
                 userId,
                 setUserId,
+                userPublicKey,
+                setUserPublicKey,
                 usersList,
                 setUsersList,
                 messages,

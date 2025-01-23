@@ -5,6 +5,7 @@ type Props = {
     searching: boolean,
     username:string,
     id:number,
+    public_key:string,
     setUsersList: (value: React.SetStateAction<User[]>) => void,
     setUser: (value: React.SetStateAction<{
         name: string,
@@ -14,12 +15,16 @@ type Props = {
     setUserId: (value: React.SetStateAction<number>) => void,
     setSearchData: (value: React.SetStateAction<UserSearch[]>) => void,
     setSearching: (value: React.SetStateAction<boolean>) => void,
+    searchData: UserSearch[],
+    setUserPublicKey: React.Dispatch<React.SetStateAction<string>>
 }
 
 export function handelUserAdd(props:Props){
-    const {searching,setUsersList,username,id,setUser,usersList,setUserId,setSearching,setSearchData} = props
+    const {searching,setUsersList,username,id,usersList,setSearching,setSearchData,searchData,public_key,setUserPublicKey,setUser,setUserId} = props
     if(searching) {
         const userExists = usersList.some(m => m.recipient_id === id);
+        const userData = searchData.find(m=> m.user_id === id)
+        if(!userData) return
 
         setUsersList(prev=> {
             if (userExists) return [...prev]
@@ -33,11 +38,13 @@ export function handelUserAdd(props:Props){
                     unread_count:0,
                     seen:undefined,
                     name:'',
+                    public_key:userData.public_key,
                 }, ...prev]
         })
     }
     setUser({name:username,img:''})
     setUserId(id)
+    setUserPublicKey(public_key)
     setSearchData([]);
     setSearching(false);
 }

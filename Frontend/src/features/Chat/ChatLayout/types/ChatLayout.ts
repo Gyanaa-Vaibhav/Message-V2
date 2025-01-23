@@ -10,6 +10,7 @@ type User = {
     recipient_id:number;
     profile_picture:string,
     unread_count:number,
+    public_key:string
 };
 
 
@@ -25,7 +26,7 @@ type Props = {
 type UserSearch = {
     username: string;
     user_id:number,
-    public_Key:string,
+    public_key:string,
 }
 
 export type {User,Props,UserSearch}

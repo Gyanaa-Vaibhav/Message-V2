@@ -1,8 +1,8 @@
-import '../componentStyles/messageObject.css'
-import {Message} from "../types/ChatBox.ts";
+import './messageObject.css'
+import {Message} from "../../types/ChatBox.ts";
 import React from "react";
-import EmojiContainer from "./EmojiContainer.tsx";
-import ReadReceipt from "./ReadReceipt.tsx";
+import EmojiContainer from "../EmojiContainer.tsx";
+import ReadReceipt from "../ReadReceipt.tsx";
 
 type Props = {
     m:Message,

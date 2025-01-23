@@ -24,7 +24,7 @@ export default function useSocketIncomingMessages({socket,setNewMessage,setIsUse
                 setNewMessage(true)
             }
             setIsUserTyping(false);
-            handleSendMessage({ messageData, userId, setMessages, setUsersList,usersList});
+            handleSendMessage({messageData, userId, setMessages, setUsersList, usersList}).then(r => r);
         };
 
         socket.on('sendMessage', handleIncomingMessage);

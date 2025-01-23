@@ -42,6 +42,7 @@ export default function handelVerifyOTP({setErrorMessage,setShowError,OPTData,em
             if(data.success){
                 localStorage.setItem('accessToken',data.accessToken)
                 localStorage.setItem('privateKey',data.privateKey)
+                localStorage.setItem('publicKey',data.publicKey)
                 window.location.href = '/chat';
             }
             if(!data.success){

@@ -32,6 +32,7 @@ function validateOtp({req,res,otpData,email,userData}:ValidateOTP){
                     success: true,
                     accessToken,
                     privateKey,
+                    publicKey:userData.public_key
                 });
                 delete otpData[email]
                 return true;

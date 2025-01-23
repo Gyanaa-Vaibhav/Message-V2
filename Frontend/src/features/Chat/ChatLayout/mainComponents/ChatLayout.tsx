@@ -1,21 +1,27 @@
 import '../mainStyles/ChatLayout.css';
 import SearchBar from "./SearchBar.tsx";
 import React from "react";
-import {User, UserSearch} from "../types/ChatLayout.ts";
+import {UserSearch} from "../types/ChatLayout.ts";
 import {useUserContext} from "../../ChatBox/ChatContext.tsx";
-import useChatFetch from "../utils/useChatFetch.ts";
-import useUnreadMessages from "../utils/useUnreadMessages.ts";
+import {
+    useUnreadMessages,
+    useChatFetch,
+    useResetUnreadCount,
+    useSortUserList
+} from "../components/hooks/hooksExport.ts";
 import UserProfile from "../components/UserProfile.tsx";
 import SearchUserProfile from "../components/SearchUserProfile.tsx";
 
 const ChatLayout = () => {
 
     // Custom Hooks
-    useChatFetch()
-    useUnreadMessages()
+    useChatFetch();
+    useUnreadMessages();
+    useResetUnreadCount();
+    useSortUserList();
 
     // Global Context
-    const { userId, setUserId, user, setUser, usersList, setUsersList } = useUserContext();
+    const { setUserId, setUser, usersList, setUsersList ,setUserPublicKey } = useUserContext();
 
     // Custom States
     const [searching,setSearching] = React.useState<boolean>(false);
@@ -23,39 +29,11 @@ const ChatLayout = () => {
     const [firstSearch,setFirstSearch] = React.useState<boolean>(false);
 
     // Custom Objects
-    const handelUserAddObject = {searching,setUsersList,setUser,usersList,setUserId,setSearching,setSearchData}
+    const handelUserAddObject = {searching,setUsersList,setUser,usersList,setUserId,setSearching,setSearchData,searchData,setUserPublicKey}
 
     React.useEffect(()=>{
         if(!firstSearch) if(searching) setFirstSearch(true)
     },[firstSearch, searching])
-
-    React.useEffect(() => {
-        const userExists = usersList.some((m) => m.message === undefined);
-        // Makes the user_count : 0 if the message is received by current user
-        if(!userExists) return
-        console.log('running')
-        setUsersList((prev) => {
-            const data: User[] = [];
-            let hasChanged = false;
-
-            prev.forEach((m) => {
-                if (m.message === undefined) return;
-                if (m.recipient_id === userId && m.unread_count > 0) {
-                    // Reset unread_count for active user
-                    data.push({ ...m, unread_count: 0 });
-                    // Mark that a change occurred
-                    hasChanged = true;
-                } else {
-                    // Keep other users unchanged
-                    data.push(m);
-                }
-            });
-
-            // Only update the state if changes were made
-            return hasChanged ? data : prev;
-        });
-    },[usersList, setUsersList, userId, firstSearch])
-
 
     return (
         <>
@@ -87,10 +65,6 @@ const ChatLayout = () => {
                             <UserProfile
                                 m={m}
                                 key={i}
-                                user={user}
-                                userId={userId}
-                                setUser={setUser}
-                                setUserId={setUserId}
                             />
                         )}
                     </>

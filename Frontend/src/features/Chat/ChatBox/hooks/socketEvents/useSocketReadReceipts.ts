@@ -24,7 +24,6 @@ export default function useSocketReadReceipts({socket,setMessages,activeUserId,u
         })
 
         socket.on('deliveredOnLogin',(data)=>{
-            console.log('some one logged')
             const currentUser = messages.some((m)=> m.userId === data.user_id)
             if(currentUser){
                 setMessages(prev=>{
@@ -52,5 +51,5 @@ export default function useSocketReadReceipts({socket,setMessages,activeUserId,u
                 })
             })
         })
-    },[activeUserId, setMessages, socket, userId])
+    },[activeUserId, messages, setMessages, socket, userId])
 }

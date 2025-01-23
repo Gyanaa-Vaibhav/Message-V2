@@ -11,6 +11,7 @@ export  {getChatMessagesByID} from './getQueries/getChatMessagesByID.js'
 export {getUnreadCounts} from  './getQueries/getUnreadCounts.js'
 export {getChatUsersLastMessage} from './getQueries/getChatUsersLastMessage.js'
 export {getChatUsers} from './getQueries/getChatUsers.js'
+export {getMe} from './getQueries/getMe.js'
 
 //Update Queries
 export {updateMessagesToDelivered} from './updateQueries/updateMessagesToDeliver.js'

@@ -3,18 +3,14 @@ import ChatLayout from "./ChatLayout/mainComponents/ChatLayout.tsx";
 import './MainChat.css'
 import React from "react";
 import {UserProvider} from "./ChatBox/ChatContext.tsx";
-import useAuthFetch from "./ChatLayout/utils/useAuthFetch.ts";
+import {useAuthFetch} from "./ChatLayout/components/hooks/hooksExport.ts";
 
 export default function MainChat() {
-    const [activeUser, setActiveUser] = React.useState<string>('');
-    const [activeUserId, setActiveUserId] = React.useState<number>(NaN);
-    const [activeUserEmail, setActiveUserEmail] = React.useState<string>('');
-
     const [success] = useAuthFetch()
 
     React.useEffect(() => {
         if(!success) {
-            return
+            return;
         }
         const token = localStorage.getItem('accessToken');
         if (token) {
@@ -24,11 +20,11 @@ export default function MainChat() {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log("Me",data)
+                    console.log("Me Data",data)
                     if (data?.user) {
-                        setActiveUserId(Number(data.user.user_id))
-                        setActiveUser(data.user.user);
-                        setActiveUserEmail(data.user.email)
+                        localStorage.setItem('activeUserId',data.user.user_id)
+                        localStorage.setItem('activeUser',data.user.username)
+                        localStorage.setItem('activeUserEmail',data.user.email)
                     }
                 });
         }
@@ -45,11 +41,7 @@ export default function MainChat() {
             <UserProvider>
             <div className='chat-screen'>
                 <ChatLayout/>
-                <ChatBox
-                    userEmail={activeUserEmail}
-                    activeUser={activeUser}
-                    activeUserId={activeUserId}
-                />
+                <ChatBox/>
             </div>
             </UserProvider>
         </>

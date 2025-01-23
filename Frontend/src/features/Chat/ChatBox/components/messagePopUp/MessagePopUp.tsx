@@ -1,6 +1,6 @@
-import scrollToBottom from "../utils/scrollToBottom.ts";
+import scrollToBottom from "../../utils/scrollToBottom.ts";
 import React from "react";
-import '../componentStyles/messagePopup.css'
+import './messagePopup.css'
 
 type Props = {
     scrollToBottomObject: {
@@ -11,7 +11,7 @@ type Props = {
     newMessage: boolean
 }
 
-export default function MessagePupUp({scrollToBottomObject,newMessage}:Props){
+export default function MessagePopUp({scrollToBottomObject,newMessage}:Props){
     return(
         <div className='down-arrow'>
             <div className="subtle-down-arrow" onClick={() => scrollToBottom(scrollToBottomObject)}>

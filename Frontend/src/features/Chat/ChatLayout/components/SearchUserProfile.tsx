@@ -16,13 +16,15 @@ type Props = {
         setSearching: React.Dispatch<React.SetStateAction<boolean>>,
         setUserId: React.Dispatch<React.SetStateAction<number>>,
         setSearchData: React.Dispatch<React.SetStateAction<UserSearch[]>>,
+        searchData: UserSearch[],
+        setUserPublicKey: React.Dispatch<React.SetStateAction<string>>
     }
 }
 
 export default function SearchUserProfile({m,handelUserAddObject}:Props){
     return(
         <div
-            onClick={()=> handelUserAdd({username:m.username,id: m.user_id,...handelUserAddObject})}
+            onClick={()=> handelUserAdd({username:m.username,id: m.user_id,public_key:m.public_key,...handelUserAddObject})}
             className={'user-chat-search'}
         >
             <div className='profile-image'>

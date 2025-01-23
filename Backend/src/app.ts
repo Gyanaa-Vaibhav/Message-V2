@@ -14,7 +14,7 @@ import webSocket from "./config/WebSocket/webSocket.js";
 import loginRouter from "./features/Login/routes/LoginRoute.js";
 import RegisterRouter from "./features/Register/routes/RegisterRoute.js";
 import {decode, refreshToken, sign, verifyToken} from "./config/utils/jwt.js";
-import {getUser, getUserList,getUnreadCounts,getChatUsersLastMessage,getChatUsers} from "./config/DataBase/dbExports.js";
+import {getUser, getUserList,getUnreadCounts,getChatUsersLastMessage,getChatUsers,getMe} from "./config/DataBase/dbExports.js";
 
 
 dotenv.config();
@@ -68,7 +68,7 @@ app.get('/refreshToken',refreshToken)
 app.use(sign)
 app.use(verifyToken)
 app.get('/me',async (req,res)=>{
-    const [user] = await getUser({user_id:req.body.user.user_id})
+    const [user] = await getMe({user_id:req.body.user.user_id})
     res.json({success:true,user})
 })
 

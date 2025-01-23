@@ -1,5 +1,5 @@
-import '../componentStyles/messageInputContainer.css'
-import {HandleInputChange, SendMessageParams} from "../utils/handelMessage.ts";
+import './messageInputContainer.css'
+import {HandleInputChange, SendMessageParams} from "../../utils/handelMessage.ts";
 import send from '/svg/send_icon.svg?url'
 import React from "react";
 import {Socket} from "socket.io-client";
