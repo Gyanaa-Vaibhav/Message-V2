@@ -1,0 +1,1 @@
+export {default as encryptMessage} from './encryptMessage.ts'

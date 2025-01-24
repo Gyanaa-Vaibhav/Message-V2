@@ -6,7 +6,7 @@ import {Message} from "../types/ChatBox.ts";
 import {useUserContext} from "../ChatContext.tsx";
 import UploadHandler from "./UploadHandler.tsx";
 import useSocket from "../hooks/useSocket.ts";
-import {sendMessage,handleInputChange,scrollToBottom,handleKeyDown,handleScroll} from "../utils/utilsExport.ts";
+import {sendMessage,scrollToBottom,handleKeyDown,handleScroll} from "../utils/utilsExport.ts";
 import decryptPrivateKey from "../../../../shared/decryptPrivateKey.ts";
 import {MessagePopUp,UserTyping,MessageObject,MessageInputContainer} from "../components/componentsExports.ts";
 
@@ -14,7 +14,7 @@ const ChatBox = () => {
 
     // Items from Local Storage
     const activeUserId = Number(localStorage.getItem('activeUserId'))
-    const userEmail = localStorage.getItem('userEmail')
+    const userEmail = localStorage.getItem('activeUserEmail')
 
     // Key Verifier
     const key = localStorage.getItem('privateKey')
@@ -190,7 +190,6 @@ const ChatBox = () => {
                 <MessageInputContainer
                     textareaRef={textareaRef}
                     outGoingMessage={outGoingMessage}
-                    handleInputChange={handleInputChange}
                     handleKeyDown={(event)=>handleKeyDown({event,outGoingMessage,messageObject})}
                     sendMessage={sendMessage}
                     messageObject={messageObject}

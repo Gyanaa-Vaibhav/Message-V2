@@ -1,14 +1,14 @@
 import './messageInputContainer.css'
-import {HandleInputChange, SendMessageParams} from "../../utils/handelMessage.ts";
 import send from '/svg/send_icon.svg?url'
 import React from "react";
 import {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "@socket.io/component-emitter";
+import {SendMessageParams} from "../../utils/handelMessages/handelMessagesTypes.ts";
+import {handleInputChange} from "../../utils/utilsExport.ts";
 
 type Prop = {
     textareaRef: React.RefObject<HTMLTextAreaElement>,
     outGoingMessage: string,
-    handleInputChange({event, setOutGoingMessage, socket, userId, isUserTyping}: HandleInputChange, ): void,
     handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>): void,
     sendMessage(props: SendMessageParams): void,
     messageObject:SendMessageParams,
@@ -21,7 +21,7 @@ type Prop = {
 }
 
 export default function MessageInputContainer(props:Prop){
-    const {textareaRef,outGoingMessage,handleInputChange,handleKeyDown,sendMessage,messageObject,handelChangeObject} = props
+    const {textareaRef,outGoingMessage,handleKeyDown,sendMessage,messageObject,handelChangeObject} = props
     return(
         <div className='input-container'>
             <div className='message-container'>

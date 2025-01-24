@@ -2,8 +2,8 @@ import React from "react";
 import {MessageData} from "../../types/ChatBox.ts";
 import { Socket } from "socket.io-client";
 import {DefaultEventsMap} from '@socket.io/component-emitter'
-import {handleSendMessage} from "../../utils/handelMessage.ts";
 import {useUserContext} from "../../ChatContext.tsx";
+import {handleReceiveMessage} from "../../utils/utilsExport.ts";
 
 type Props = {
     socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
@@ -24,7 +24,7 @@ export default function useSocketIncomingMessages({socket,setNewMessage,setIsUse
                 setNewMessage(true)
             }
             setIsUserTyping(false);
-            handleSendMessage({messageData, userId, setMessages, setUsersList, usersList}).then(r => r);
+            handleReceiveMessage({messageData, userId, setMessages, setUsersList, usersList}).then(r => r);
         };
 
         socket.on('sendMessage', handleIncomingMessage);
